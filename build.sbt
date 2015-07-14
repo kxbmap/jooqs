@@ -9,8 +9,6 @@ commonSettings
 Publish.disable
 
 lazy val commonSettings = Seq(
-  autoAPIMappings := true,
-  exportJars := true,
   scalacOptions ++= Seq(
     "-feature",
     "-Xlint",
