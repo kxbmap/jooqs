@@ -10,6 +10,8 @@ Publish.disable
 
 lazy val commonSettings = Seq(
   scalacOptions ++= Seq(
+    "-deprecation",
+    "-unchecked",
     "-feature",
     "-Xlint",
     "-Xexperimental"
