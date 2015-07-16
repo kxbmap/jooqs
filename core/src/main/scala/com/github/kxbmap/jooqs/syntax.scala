@@ -1,16 +1,10 @@
 package com.github.kxbmap.jooqs
 
-////
-
 import com.github.kxbmap.jooqs.db.DBSession
 import org.jooq._
 import org.jooq.impl.DSL
 
-////
-
 object syntax {
-
-  ////
 
   def dsl(implicit session: DBSession): DSLContext = session.dslContext
 
@@ -55,8 +49,9 @@ object syntax {
     def select(fields: Seq[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
   }
 
-  ////
+  //// generation:start
 
+  //// start:FieldOps
   implicit class FieldOps[T](private val self: Field[T]) extends AnyVal {
 
     ////
@@ -128,5 +123,7 @@ object syntax {
     def <=>(other: Field[T]): Condition = self.isNotDistinctFrom(other)
 
   }
+  //// end:FieldOps
 
+  //// generation:end
 }
