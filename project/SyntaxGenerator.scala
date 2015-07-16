@@ -7,7 +7,8 @@ object SyntaxGenerator {
   val obj = "syntax"
 
   lazy val classes = Seq(
-    FieldOpsClass
+    FieldOpsClass,
+    NumberFieldOpsClass
   )
 
   def apply(scalaSource: File, log: Logger): Unit = {
@@ -53,9 +54,9 @@ object SyntaxGenerator {
     if (e == -1) sys.error("missing end generation marker")
 
     val sb = new StringBuilder(old.length)
-    lines.take(s + 1).addString(sb, "", "\n", "\n")
+    lines.take(s + 1).addString(sb, "", "\n", "\n\n")
     updateOpsClasses(lines.slice(s + 1, e), sb)
-    lines.drop(e).addString(sb, "", "\n", "\n")
+    lines.drop(e).addString(sb, "\n\n", "\n", "\n")
     sb.toString()
   }
 
@@ -71,13 +72,16 @@ object SyntaxGenerator {
         lines.indexWhere(_.matches(end(name)), s) match {
           case -1             => sys.error(s"missing end marker: $name start: $s")
           case e if e >= next => sys.error(s"invalid end marker position: $name start: $s, end: $e, next: $next")
-          case e              => name -> lines.slice(s, e + 1).mkString("", "\n", "\n")
+          case e              => name -> lines.slice(s + 1, e).mkString("", "\n", "\n").unindent
         }
     }.toMap
 
     classes.iterator.map { c =>
-      oldSources.get(c.name).fold(c.render.indent)(c.updateSource)
-    }.addString(sb, "\n", "\n\n", "\n")
+      s"""//// start:${c.name}
+         |${oldSources.get(c.name).fold(c.render)(c.updateSource)}
+         |//// end:${c.name}
+         |""".stripMargin.indent
+    }.addString(sb, "\n\n")
   }
 
 
@@ -86,23 +90,20 @@ object SyntaxGenerator {
 
     def members: Seq[String]
 
-    def render: String =
-      s"""//// start:$name
-         |implicit class $tpe(private val self: $paramType) extends AnyVal {
+    lazy val render: String =
+      s"""implicit class $tpe(private val self: $paramType) extends AnyVal {
          |
          |  ////
          |
          |  ////
          |
          |${members.mkString("", "\n", "\n").indent}
-         |}
-         |//// end:$name
-         |""".stripMargin
+         |}""".stripMargin
 
     def updateSource(old: String): String = {
       val delimiter = "////"
       val oldChunks = old.split(delimiter)
-      val newChunks = render.indent.split(delimiter)
+      val newChunks = render.split(delimiter)
       if (oldChunks.length != newChunks.length) {
         sys.error("different number of chunks in old and new source")
       }
@@ -110,7 +111,7 @@ object SyntaxGenerator {
         for {
           ((o, n), i) <- oldChunks.zip(newChunks).zipWithIndex
         } yield {
-          val useOld = i % 2 == 0
+          val useOld = i % 2 == 1
           if (useOld) o else n
         }
       updatedChunks.mkString(delimiter)
@@ -158,6 +159,57 @@ object SyntaxGenerator {
   }
 
 
+  object NumberFieldOpsClass extends OpsClass("NumberFieldOps[T <: Number]", "Field[T]") {
+    lazy val members: Seq[String] = {
+      def unary(op: String, body: String) =
+        s"""def unary_$op : Field[T] = $body
+           |""".stripMargin
+
+      def binOps(ops: Seq[(String, String)], types: Seq[String], body: String => String) = for {
+        (op, m) <- ops
+        t <- types
+      } yield
+        s"""def $op(other: $t): Field[T] = ${body(m)}
+           |""".stripMargin
+
+      val neg = unary("-", "self.neg()")
+      val arithmeticOps = neg +: binOps(
+        Seq(
+          "+" -> "add",
+          "-" -> "sub",
+          "*" -> "mul",
+          "/" -> "div",
+          "%" -> "mod"
+        ),
+        Seq(
+          "Number",
+          "Field[_ <: Number]"
+        ),
+        m => s"self.$m(other)")
+
+      val not = unary("~", "DSL.bitNot(self)")
+      val bitwiseOps = not +: binOps(
+        Seq(
+          "&" -> "bitAnd",
+          "|" -> "bitOr",
+          "^" -> "bitXor",
+          "~&" -> "bitNand",
+          "~|" -> "bitNor",
+          "~^" -> "bitXNor",
+          "<<" -> "shl",
+          ">>" -> "shr"
+        ),
+        Seq(
+          "T",
+          "Field[T]"
+        ),
+        m => s"DSL.$m(self, other)")
+
+      arithmeticOps ++ bitwiseOps
+    }
+  }
+
+
   implicit class IndentOps(val self: String) extends AnyVal {
     def indent: String = indent(1)
 
@@ -165,6 +217,15 @@ object SyntaxGenerator {
       case ""   => ""
       case line => "  " * n + line
     }.mkString("\n")
+
+    def unindent: String = unindent(1)
+
+    def unindent(n: Int): String =
+      if (self.lines.forall {
+        case ""   => true
+        case line => line.startsWith("  " * n)
+      }) self.lines.map(_.drop(n * 2)).mkString("\n")
+      else sys.error("cannot unindent")
   }
 
 }

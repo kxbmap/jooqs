@@ -125,5 +125,71 @@ object syntax {
   }
   //// end:FieldOps
 
+  //// start:NumberFieldOps
+  implicit class NumberFieldOps[T <: Number](private val self: Field[T]) extends AnyVal {
+
+    ////
+
+    ////
+
+    def unary_- : Field[T] = self.neg()
+
+    def +(other: Number): Field[T] = self.add(other)
+
+    def +(other: Field[_ <: Number]): Field[T] = self.add(other)
+
+    def -(other: Number): Field[T] = self.sub(other)
+
+    def -(other: Field[_ <: Number]): Field[T] = self.sub(other)
+
+    def *(other: Number): Field[T] = self.mul(other)
+
+    def *(other: Field[_ <: Number]): Field[T] = self.mul(other)
+
+    def /(other: Number): Field[T] = self.div(other)
+
+    def /(other: Field[_ <: Number]): Field[T] = self.div(other)
+
+    def %(other: Number): Field[T] = self.mod(other)
+
+    def %(other: Field[_ <: Number]): Field[T] = self.mod(other)
+
+    def unary_~ : Field[T] = DSL.bitNot(self)
+
+    def &(other: T): Field[T] = DSL.bitAnd(self, other)
+
+    def &(other: Field[T]): Field[T] = DSL.bitAnd(self, other)
+
+    def |(other: T): Field[T] = DSL.bitOr(self, other)
+
+    def |(other: Field[T]): Field[T] = DSL.bitOr(self, other)
+
+    def ^(other: T): Field[T] = DSL.bitXor(self, other)
+
+    def ^(other: Field[T]): Field[T] = DSL.bitXor(self, other)
+
+    def ~&(other: T): Field[T] = DSL.bitNand(self, other)
+
+    def ~&(other: Field[T]): Field[T] = DSL.bitNand(self, other)
+
+    def ~|(other: T): Field[T] = DSL.bitNor(self, other)
+
+    def ~|(other: Field[T]): Field[T] = DSL.bitNor(self, other)
+
+    def ~^(other: T): Field[T] = DSL.bitXNor(self, other)
+
+    def ~^(other: Field[T]): Field[T] = DSL.bitXNor(self, other)
+
+    def <<(other: T): Field[T] = DSL.shl(self, other)
+
+    def <<(other: Field[T]): Field[T] = DSL.shl(self, other)
+
+    def >>(other: T): Field[T] = DSL.shr(self, other)
+
+    def >>(other: Field[T]): Field[T] = DSL.shr(self, other)
+
+  }
+  //// end:NumberFieldOps
+
   //// generation:end
 }

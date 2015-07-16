@@ -8,7 +8,7 @@ class FieldOpsSpec extends FunSpec {
   import syntax._
 
   describe("FieldOps") {
-    describe("||") {
+    describe("operator '||'") {
       it("should be concat with a string value") {
         val l = DSL.field("l")
         val r = "foo"
@@ -21,7 +21,7 @@ class FieldOpsSpec extends FunSpec {
       }
     }
 
-    describe("===") {
+    describe("operator '==='") {
       it("should be equal with a value") {
         val l = DSL.field("l")
         val r = "foo"
@@ -44,7 +44,7 @@ class FieldOpsSpec extends FunSpec {
       }
     }
 
-    describe("=!=") {
+    describe("operator '=!='") {
       it("should be notEqual with a value") {
         val l = DSL.field("l")
         val r = "foo"
@@ -67,7 +67,7 @@ class FieldOpsSpec extends FunSpec {
       }
     }
 
-    describe("<>") {
+    describe("operator '<>'") {
       it("should be notEqual with a value") {
         val l = DSL.field("l")
         val r = "foo"
@@ -90,7 +90,7 @@ class FieldOpsSpec extends FunSpec {
       }
     }
 
-    describe("<") {
+    describe("operator '<'") {
       it("should be lessThan with a value") {
         val l = DSL.field("l")
         val r = "foo"
@@ -113,7 +113,7 @@ class FieldOpsSpec extends FunSpec {
       }
     }
 
-    describe("<=") {
+    describe("operator '<='") {
       it("should be lessOrEqual with a value") {
         val l = DSL.field("l")
         val r = "foo"
@@ -136,7 +136,7 @@ class FieldOpsSpec extends FunSpec {
       }
     }
 
-    describe(">") {
+    describe("operator '>'") {
       it("should be greaterThan with a value") {
         val l = DSL.field("l")
         val r = "foo"
@@ -159,7 +159,7 @@ class FieldOpsSpec extends FunSpec {
       }
     }
 
-    describe(">=") {
+    describe("operator '>='") {
       it("should be greaterOrEqual with a value") {
         val l = DSL.field("l")
         val r = "foo"
@@ -182,7 +182,7 @@ class FieldOpsSpec extends FunSpec {
       }
     }
 
-    describe("<=>") {
+    describe("operator '<=>'") {
       it("should be isNotDistinctFrom with a value") {
         val l = DSL.field("l")
         val r = "foo"
