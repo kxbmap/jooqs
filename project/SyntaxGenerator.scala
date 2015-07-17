@@ -9,7 +9,9 @@ object SyntaxGenerator {
   lazy val classes = Seq(
     FieldOpsClass,
     NumberFieldOpsClass
-  ) ++ (1 to 22).map(new RecordNOpsClass(_))
+  ) ++
+    (1 to 22).map(new RecordNOpsClass(_)) ++
+    (1 to 22).map(new TupleNOpsClass(_))
 
   def apply(scalaSource: File, log: Logger): Unit = {
     val file = pkg.split('.').foldLeft(scalaSource)(_ / _) / s"$obj.scala"
@@ -240,11 +242,30 @@ object SyntaxGenerator {
     lazy val members: Seq[String] = {
       val tpe = if (n == 1) "Tuple1[T1]" else s"($ts)"
       val body = if (n == 1) "Tuple1(value1)" else s"(${Util.ns(n, "value" + _)})"
-      val tuple =
+      val asTuple =
         s"""def asTuple: $tpe = $body
            |""".stripMargin
 
-      Seq(tuple)
+      Seq(asTuple)
+    }
+  }
+
+
+  class TupleNOpsClass(n: Int) extends OpsClass {
+    val ts = Util.ts("T", n)
+
+    val tpe: String = s"Tuple${n}Ops[$ts]"
+
+    val selfTpe: String = if (n == 1) "Tuple1[T1]" else s"($ts)"
+
+    override val importSelf: Boolean = true
+
+    lazy val members: Seq[String] = {
+      val asRow =
+        s"""def asRow: Row$n[$ts] = DSL.row(${Util.ns(n, "_" + _)})
+           |""".stripMargin
+
+      Seq(asRow)
     }
   }
 

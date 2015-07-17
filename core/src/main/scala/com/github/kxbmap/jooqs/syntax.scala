@@ -499,5 +499,313 @@ object syntax {
 
   //// end:Record22Ops
 
+  //// start:Tuple1Ops
+  implicit class Tuple1Ops[T1](private val self: Tuple1[T1]) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row1[T1] = DSL.row(_1)
+  }
+
+  //// end:Tuple1Ops
+
+  //// start:Tuple2Ops
+  implicit class Tuple2Ops[T1, T2](private val self: (T1, T2)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row2[T1, T2] = DSL.row(_1, _2)
+  }
+
+  //// end:Tuple2Ops
+
+  //// start:Tuple3Ops
+  implicit class Tuple3Ops[T1, T2, T3](private val self: (T1, T2, T3)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row3[T1, T2, T3] = DSL.row(_1, _2, _3)
+  }
+
+  //// end:Tuple3Ops
+
+  //// start:Tuple4Ops
+  implicit class Tuple4Ops[T1, T2, T3, T4](private val self: (T1, T2, T3, T4)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row4[T1, T2, T3, T4] = DSL.row(_1, _2, _3, _4)
+  }
+
+  //// end:Tuple4Ops
+
+  //// start:Tuple5Ops
+  implicit class Tuple5Ops[T1, T2, T3, T4, T5](private val self: (T1, T2, T3, T4, T5)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row5[T1, T2, T3, T4, T5] = DSL.row(_1, _2, _3, _4, _5)
+  }
+
+  //// end:Tuple5Ops
+
+  //// start:Tuple6Ops
+  implicit class Tuple6Ops[T1, T2, T3, T4, T5, T6](private val self: (T1, T2, T3, T4, T5, T6)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row6[T1, T2, T3, T4, T5, T6] = DSL.row(_1, _2, _3, _4, _5, _6)
+  }
+
+  //// end:Tuple6Ops
+
+  //// start:Tuple7Ops
+  implicit class Tuple7Ops[T1, T2, T3, T4, T5, T6, T7](private val self: (T1, T2, T3, T4, T5, T6, T7)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row7[T1, T2, T3, T4, T5, T6, T7] = DSL.row(_1, _2, _3, _4, _5, _6, _7)
+  }
+
+  //// end:Tuple7Ops
+
+  //// start:Tuple8Ops
+  implicit class Tuple8Ops[T1, T2, T3, T4, T5, T6, T7, T8](private val self: (T1, T2, T3, T4, T5, T6, T7, T8)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row8[T1, T2, T3, T4, T5, T6, T7, T8] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8)
+  }
+
+  //// end:Tuple8Ops
+
+  //// start:Tuple9Ops
+  implicit class Tuple9Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row9[T1, T2, T3, T4, T5, T6, T7, T8, T9] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9)
+  }
+
+  //// end:Tuple9Ops
+
+  //// start:Tuple10Ops
+  implicit class Tuple10Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10)
+  }
+
+  //// end:Tuple10Ops
+
+  //// start:Tuple11Ops
+  implicit class Tuple11Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
+  }
+
+  //// end:Tuple11Ops
+
+  //// start:Tuple12Ops
+  implicit class Tuple12Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
+  }
+
+  //// end:Tuple12Ops
+
+  //// start:Tuple13Ops
+  implicit class Tuple13Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
+  }
+
+  //// end:Tuple13Ops
+
+  //// start:Tuple14Ops
+  implicit class Tuple14Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14)
+  }
+
+  //// end:Tuple14Ops
+
+  //// start:Tuple15Ops
+  implicit class Tuple15Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15)
+  }
+
+  //// end:Tuple15Ops
+
+  //// start:Tuple16Ops
+  implicit class Tuple16Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16)
+  }
+
+  //// end:Tuple16Ops
+
+  //// start:Tuple17Ops
+  implicit class Tuple17Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17)
+  }
+
+  //// end:Tuple17Ops
+
+  //// start:Tuple18Ops
+  implicit class Tuple18Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)
+  }
+
+  //// end:Tuple18Ops
+
+  //// start:Tuple19Ops
+  implicit class Tuple19Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)
+  }
+
+  //// end:Tuple19Ops
+
+  //// start:Tuple20Ops
+  implicit class Tuple20Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20)
+  }
+
+  //// end:Tuple20Ops
+
+  //// start:Tuple21Ops
+  implicit class Tuple21Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21)
+  }
+
+  //// end:Tuple21Ops
+
+  //// start:Tuple22Ops
+  implicit class Tuple22Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)) extends AnyVal {
+
+    import self._
+
+    ////
+
+    ////
+
+    def asRow: Row22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22)
+  }
+
+  //// end:Tuple22Ops
+
   //// generation:end
 }
