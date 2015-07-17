@@ -508,7 +508,7 @@ object syntax {
 
     ////
 
-    def asRow: Row1[T1] = DSL.row(_1)
+    def row: Row1[T1] = DSL.row(_1)
   }
 
   //// end:Tuple1Ops
@@ -522,7 +522,7 @@ object syntax {
 
     ////
 
-    def asRow: Row2[T1, T2] = DSL.row(_1, _2)
+    def row: Row2[T1, T2] = DSL.row(_1, _2)
   }
 
   //// end:Tuple2Ops
@@ -536,7 +536,7 @@ object syntax {
 
     ////
 
-    def asRow: Row3[T1, T2, T3] = DSL.row(_1, _2, _3)
+    def row: Row3[T1, T2, T3] = DSL.row(_1, _2, _3)
   }
 
   //// end:Tuple3Ops
@@ -550,7 +550,7 @@ object syntax {
 
     ////
 
-    def asRow: Row4[T1, T2, T3, T4] = DSL.row(_1, _2, _3, _4)
+    def row: Row4[T1, T2, T3, T4] = DSL.row(_1, _2, _3, _4)
   }
 
   //// end:Tuple4Ops
@@ -564,7 +564,7 @@ object syntax {
 
     ////
 
-    def asRow: Row5[T1, T2, T3, T4, T5] = DSL.row(_1, _2, _3, _4, _5)
+    def row: Row5[T1, T2, T3, T4, T5] = DSL.row(_1, _2, _3, _4, _5)
   }
 
   //// end:Tuple5Ops
@@ -578,7 +578,7 @@ object syntax {
 
     ////
 
-    def asRow: Row6[T1, T2, T3, T4, T5, T6] = DSL.row(_1, _2, _3, _4, _5, _6)
+    def row: Row6[T1, T2, T3, T4, T5, T6] = DSL.row(_1, _2, _3, _4, _5, _6)
   }
 
   //// end:Tuple6Ops
@@ -592,7 +592,7 @@ object syntax {
 
     ////
 
-    def asRow: Row7[T1, T2, T3, T4, T5, T6, T7] = DSL.row(_1, _2, _3, _4, _5, _6, _7)
+    def row: Row7[T1, T2, T3, T4, T5, T6, T7] = DSL.row(_1, _2, _3, _4, _5, _6, _7)
   }
 
   //// end:Tuple7Ops
@@ -606,7 +606,7 @@ object syntax {
 
     ////
 
-    def asRow: Row8[T1, T2, T3, T4, T5, T6, T7, T8] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8)
+    def row: Row8[T1, T2, T3, T4, T5, T6, T7, T8] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8)
   }
 
   //// end:Tuple8Ops
@@ -620,7 +620,7 @@ object syntax {
 
     ////
 
-    def asRow: Row9[T1, T2, T3, T4, T5, T6, T7, T8, T9] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9)
+    def row: Row9[T1, T2, T3, T4, T5, T6, T7, T8, T9] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9)
   }
 
   //// end:Tuple9Ops
@@ -634,7 +634,7 @@ object syntax {
 
     ////
 
-    def asRow: Row10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10)
+    def row: Row10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10)
   }
 
   //// end:Tuple10Ops
@@ -648,7 +648,7 @@ object syntax {
 
     ////
 
-    def asRow: Row11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
+    def row: Row11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
   }
 
   //// end:Tuple11Ops
@@ -662,7 +662,7 @@ object syntax {
 
     ////
 
-    def asRow: Row12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
+    def row: Row12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
   }
 
   //// end:Tuple12Ops
@@ -676,7 +676,7 @@ object syntax {
 
     ////
 
-    def asRow: Row13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
+    def row: Row13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
   }
 
   //// end:Tuple13Ops
@@ -690,7 +690,7 @@ object syntax {
 
     ////
 
-    def asRow: Row14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14)
+    def row: Row14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14)
   }
 
   //// end:Tuple14Ops
@@ -704,7 +704,7 @@ object syntax {
 
     ////
 
-    def asRow: Row15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15)
+    def row: Row15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15)
   }
 
   //// end:Tuple15Ops
@@ -718,7 +718,7 @@ object syntax {
 
     ////
 
-    def asRow: Row16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16)
+    def row: Row16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16)
   }
 
   //// end:Tuple16Ops
@@ -732,7 +732,7 @@ object syntax {
 
     ////
 
-    def asRow: Row17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17)
+    def row: Row17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17)
   }
 
   //// end:Tuple17Ops
@@ -746,7 +746,7 @@ object syntax {
 
     ////
 
-    def asRow: Row18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)
+    def row: Row18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)
   }
 
   //// end:Tuple18Ops
@@ -760,7 +760,7 @@ object syntax {
 
     ////
 
-    def asRow: Row19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)
+    def row: Row19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)
   }
 
   //// end:Tuple19Ops
@@ -774,7 +774,7 @@ object syntax {
 
     ////
 
-    def asRow: Row20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20)
+    def row: Row20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20)
   }
 
   //// end:Tuple20Ops
@@ -788,7 +788,7 @@ object syntax {
 
     ////
 
-    def asRow: Row21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21)
+    def row: Row21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21)
   }
 
   //// end:Tuple21Ops
@@ -802,7 +802,7 @@ object syntax {
 
     ////
 
-    def asRow: Row22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22)
+    def row: Row22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22)
   }
 
   //// end:Tuple22Ops

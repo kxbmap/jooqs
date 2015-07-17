@@ -261,11 +261,11 @@ object SyntaxGenerator {
     override val importSelf: Boolean = true
 
     lazy val members: Seq[String] = {
-      val asRow =
-        s"""def asRow: Row$n[$ts] = DSL.row(${Util.ns(n, "_" + _)})
+      val row =
+        s"""def row: Row$n[$ts] = DSL.row(${Util.ns(n, "_" + _)})
            |""".stripMargin
 
-      Seq(asRow)
+      Seq(row)
     }
   }
 
