@@ -8,23 +8,23 @@ class PrimitiveTypeOpsSpec extends FunSpec with DisableAutoboxing {
   import syntax._
 
   describe("PrimitiveTypeOps") {
-    describe("boxed") {
+    describe("box") {
       it("should return boxed value") {
-        val result: java.lang.Long = 42L.boxed
+        val result: java.lang.Long = 42L.box
         assert(result == 42L)
       }
     }
   }
 
   describe("PrimitiveTypeOptionOps") {
-    describe("boxed") {
+    describe("box") {
       it("should return boxed option value") {
-        val result: Option[java.lang.Long] = Some(42L).boxed
+        val result: Option[java.lang.Long] = Some(42L).box
         assert(result == Some(42L))
       }
 
-      it("should return None if None") {
-        assert((None: Option[Long]).boxed == None)
+      it("should return None if value is None") {
+        assert((None: Option[Long]).box == None)
       }
     }
   }

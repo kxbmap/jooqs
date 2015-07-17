@@ -10,11 +10,11 @@ object syntax {
 
 
   implicit class PrimitiveTypeOps[T](private val self: T) extends AnyVal {
-    def boxed[U](implicit b: Box[T, U]): U = b.box(self)
+    def box[U](implicit b: Box[T, U]): U = b.box(self)
   }
 
   implicit class PrimitiveTypeOptionOps[T](private val self: Option[T]) extends AnyVal {
-    def boxed[U](implicit b: Box[T, U]): Option[U] = self.map(b.box)
+    def box[U](implicit b: Box[T, U]): Option[U] = self.map(b.box)
   }
 
 
