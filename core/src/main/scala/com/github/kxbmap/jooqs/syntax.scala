@@ -51,6 +51,30 @@ object syntax {
 
   //// generation:start
 
+  //// start:ConditionOps
+  implicit class ConditionOps(private val self: Condition) extends AnyVal {
+
+    ////
+
+    ////
+
+    def unary_! : Condition = self.not()
+
+    def &&(other: Condition): Condition = self.and(other)
+
+    def &&(other: Field[java.lang.Boolean]): Condition = self.and(other)
+
+    def &&(other: java.lang.Boolean): Condition = self.and(DSL.value(other))
+
+    def ||(other: Condition): Condition = self.or(other)
+
+    def ||(other: Field[java.lang.Boolean]): Condition = self.or(other)
+
+    def ||(other: java.lang.Boolean): Condition = self.or(DSL.value(other))
+  }
+
+  //// end:ConditionOps
+
   //// start:FieldOps
   implicit class FieldOps[T](private val self: Field[T]) extends AnyVal {
 

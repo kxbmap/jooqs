@@ -7,6 +7,7 @@ object SyntaxGenerator {
   val obj = "syntax"
 
   lazy val classes = Seq(
+    ConditionOpsClass,
     FieldOpsClass,
     NumberFieldOpsClass
   ) ++
@@ -127,6 +128,35 @@ object SyntaxGenerator {
           if (useOld) o else n
         }
       updatedChunks.mkString(delimiter)
+    }
+  }
+
+
+  object ConditionOpsClass extends OpsClass {
+    val tpe: String = "ConditionOps"
+
+    val selfTpe: String = "Condition"
+
+    lazy val members: Seq[String] = {
+      val not =
+        s"""def unary_! : Condition = $self.not()
+           |""".stripMargin
+
+      val ops = for {
+        (op, m) <- Seq(
+          "&&" -> "and",
+          "||" -> "or"
+        )
+        (t, o) <- Seq(
+          "Condition" -> "other",
+          "Field[java.lang.Boolean]" -> "other",
+          "java.lang.Boolean" -> "DSL.value(other)"
+        )
+      } yield
+        s"""def $op(other: $t): Condition = $self.$m($o)
+           |""".stripMargin
+
+      not +: ops
     }
   }
 
