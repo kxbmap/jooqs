@@ -20,32 +20,32 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
   }
 
   describe("Record1Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1)
         ).fetchOne()
 
-        assert(r.asTuple == Tuple1(1))
+        assert(r.toTuple == Tuple1(1))
       }
     }
   }
 
   describe("Record2Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
           DSL.inline(2)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2)))
+        assert(r.toTuple == ((1, 2)))
       }
     }
   }
 
   describe("Record3Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -53,13 +53,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(3)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3)))
+        assert(r.toTuple == ((1, 2, 3)))
       }
     }
   }
 
   describe("Record4Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -68,13 +68,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(4)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4)))
+        assert(r.toTuple == ((1, 2, 3, 4)))
       }
     }
   }
 
   describe("Record5Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -84,13 +84,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(5)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5)))
       }
     }
   }
 
   describe("Record6Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -101,13 +101,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(6)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6)))
       }
     }
   }
 
   describe("Record7Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -119,13 +119,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(7)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7)))
       }
     }
   }
 
   describe("Record8Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -138,13 +138,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(8)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8)))
       }
     }
   }
 
   describe("Record9Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -158,13 +158,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(9)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9)))
       }
     }
   }
 
   describe("Record10Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -179,13 +179,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(10)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10)))
       }
     }
   }
 
   describe("Record11Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -201,13 +201,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(11)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)))
       }
     }
   }
 
   describe("Record12Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -224,13 +224,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(12)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)))
       }
     }
   }
 
   describe("Record13Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -248,13 +248,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(13)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)))
       }
     }
   }
 
   describe("Record14Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -273,13 +273,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(14)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14)))
       }
     }
   }
 
   describe("Record15Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -299,13 +299,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(15)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)))
       }
     }
   }
 
   describe("Record16Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -326,13 +326,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(16)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16)))
       }
     }
   }
 
   describe("Record17Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -354,13 +354,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(17)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17)))
       }
     }
   }
 
   describe("Record18Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -383,13 +383,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(18)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18)))
       }
     }
   }
 
   describe("Record19Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -413,13 +413,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(19)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)))
       }
     }
   }
 
   describe("Record20Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -444,13 +444,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(20)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)))
       }
     }
   }
 
   describe("Record21Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -476,13 +476,13 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(21)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21)))
       }
     }
   }
 
   describe("Record22Ops") {
-    describe("asTuple") {
+    describe("toTuple") {
       it("should convert to tuple") {
         val r = dsl.select(
           DSL.inline(1),
@@ -509,7 +509,7 @@ class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
           DSL.inline(22)
         ).fetchOne()
 
-        assert(r.asTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)))
+        assert(r.toTuple == ((1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)))
       }
     }
   }

@@ -200,7 +200,7 @@ object syntax {
 
     ////
 
-    def asTuple: Tuple1[T1] = Tuple1(value1)
+    def toTuple: Tuple1[T1] = Tuple1(value1)
   }
 
   //// end:Record1Ops
@@ -214,7 +214,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2) = (value1, value2)
+    def toTuple: (T1, T2) = (value1, value2)
   }
 
   //// end:Record2Ops
@@ -228,7 +228,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3) = (value1, value2, value3)
+    def toTuple: (T1, T2, T3) = (value1, value2, value3)
   }
 
   //// end:Record3Ops
@@ -242,7 +242,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4) = (value1, value2, value3, value4)
+    def toTuple: (T1, T2, T3, T4) = (value1, value2, value3, value4)
   }
 
   //// end:Record4Ops
@@ -256,7 +256,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5) = (value1, value2, value3, value4, value5)
+    def toTuple: (T1, T2, T3, T4, T5) = (value1, value2, value3, value4, value5)
   }
 
   //// end:Record5Ops
@@ -270,7 +270,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6) = (value1, value2, value3, value4, value5, value6)
+    def toTuple: (T1, T2, T3, T4, T5, T6) = (value1, value2, value3, value4, value5, value6)
   }
 
   //// end:Record6Ops
@@ -284,7 +284,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7) = (value1, value2, value3, value4, value5, value6, value7)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7) = (value1, value2, value3, value4, value5, value6, value7)
   }
 
   //// end:Record7Ops
@@ -298,7 +298,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8) = (value1, value2, value3, value4, value5, value6, value7, value8)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8) = (value1, value2, value3, value4, value5, value6, value7, value8)
   }
 
   //// end:Record8Ops
@@ -312,7 +312,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9) = (value1, value2, value3, value4, value5, value6, value7, value8, value9)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9) = (value1, value2, value3, value4, value5, value6, value7, value8, value9)
   }
 
   //// end:Record9Ops
@@ -326,7 +326,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
   }
 
   //// end:Record10Ops
@@ -340,7 +340,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11)
   }
 
   //// end:Record11Ops
@@ -354,7 +354,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12)
   }
 
   //// end:Record12Ops
@@ -368,7 +368,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13)
   }
 
   //// end:Record13Ops
@@ -382,7 +382,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14)
   }
 
   //// end:Record14Ops
@@ -396,7 +396,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
   }
 
   //// end:Record15Ops
@@ -410,7 +410,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16)
   }
 
   //// end:Record16Ops
@@ -424,7 +424,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17)
   }
 
   //// end:Record17Ops
@@ -438,7 +438,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18)
   }
 
   //// end:Record18Ops
@@ -452,7 +452,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19)
   }
 
   //// end:Record19Ops
@@ -466,7 +466,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20)
   }
 
   //// end:Record20Ops
@@ -480,7 +480,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21)
   }
 
   //// end:Record21Ops
@@ -494,7 +494,7 @@ object syntax {
 
     ////
 
-    def asTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21, value22)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21, value22)
   }
 
   //// end:Record22Ops

@@ -242,11 +242,11 @@ object SyntaxGenerator {
     lazy val members: Seq[String] = {
       val tpe = if (n == 1) "Tuple1[T1]" else s"($ts)"
       val body = if (n == 1) "Tuple1(value1)" else s"(${Util.ns(n, "value" + _)})"
-      val asTuple =
-        s"""def asTuple: $tpe = $body
+      val toTuple =
+        s"""def toTuple: $tpe = $body
            |""".stripMargin
 
-      Seq(asTuple)
+      Seq(toTuple)
     }
   }
 
