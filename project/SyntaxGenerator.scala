@@ -9,7 +9,7 @@ object SyntaxGenerator {
   lazy val classes = Seq(
     FieldOpsClass,
     NumberFieldOpsClass
-  )
+  ) ++ (1 to 22).map(new RecordNOpsClass(_))
 
   def apply(scalaSource: File, log: Logger): Unit = {
     val file = pkg.split('.').foldLeft(scalaSource)(_ / _) / s"$obj.scala"
@@ -85,20 +85,30 @@ object SyntaxGenerator {
   }
 
 
-  abstract class OpsClass(tpe: String, paramType: String) {
+  abstract class OpsClass {
+
     def name: String = tpe.takeWhile(_ != '[')
+
+    def tpe: String
+
+    def self: String = "self"
+
+    def selfTpe: String
+
+    def importSelf: Boolean = false
 
     def members: Seq[String]
 
     lazy val render: String =
-      s"""implicit class $tpe(private val self: $paramType) extends AnyVal {
-         |
+      s"""implicit class $tpe(private val $self: $selfTpe) extends AnyVal {
+         |${(if (importSelf) s"\nimport $self._\n\n" else "").indent}
          |  ////
          |
          |  ////
          |
-         |${members.mkString("", "\n", "\n").indent}
-         |}""".stripMargin
+         |${members.mkString("\n").indent}
+         |}
+         |""".stripMargin
 
     def updateSource(old: String): String = {
       val delimiter = "////"
@@ -119,13 +129,17 @@ object SyntaxGenerator {
   }
 
 
-  object FieldOpsClass extends OpsClass("FieldOps[T]", "Field[T]") {
+  object FieldOpsClass extends OpsClass {
+    val tpe: String = "FieldOps[T]"
+
+    val selfTpe: String = "Field[T]"
+
     lazy val members: Seq[String] = {
       def condOps(ops: Seq[(String, String)], types: Seq[String]) = for {
         (op, m) <- ops
         t <- types
       } yield
-        s"""def $op(other: $t): Condition = self.$m(other)
+        s"""def $op(other: $t): Condition = $self.$m(other)
            |""".stripMargin
 
       val standardCondOps = condOps(
@@ -159,7 +173,11 @@ object SyntaxGenerator {
   }
 
 
-  object NumberFieldOpsClass extends OpsClass("NumberFieldOps[T <: Number]", "Field[T]") {
+  object NumberFieldOpsClass extends OpsClass {
+    val tpe: String = "NumberFieldOps[T <: Number]"
+
+    val selfTpe: String = "Field[T]"
+
     lazy val members: Seq[String] = {
       def unary(op: String, body: String) =
         s"""def unary_$op : Field[T] = $body
@@ -172,7 +190,7 @@ object SyntaxGenerator {
         s"""def $op(other: $t): Field[T] = ${body(m)}
            |""".stripMargin
 
-      val neg = unary("-", "self.neg()")
+      val neg = unary("-", s"$self.neg()")
       val arithmeticOps = neg +: binOps(
         Seq(
           "+" -> "add",
@@ -185,9 +203,9 @@ object SyntaxGenerator {
           "Number",
           "Field[_ <: Number]"
         ),
-        m => s"self.$m(other)")
+        m => s"$self.$m(other)")
 
-      val not = unary("~", "DSL.bitNot(self)")
+      val not = unary("~", s"DSL.bitNot($self)")
       val bitwiseOps = not +: binOps(
         Seq(
           "&" -> "bitAnd",
@@ -203,12 +221,38 @@ object SyntaxGenerator {
           "T",
           "Field[T]"
         ),
-        m => s"DSL.$m(self, other)")
+        m => s"DSL.$m($self, other)")
 
       arithmeticOps ++ bitwiseOps
     }
   }
 
+
+  class RecordNOpsClass(n: Int) extends OpsClass {
+    val ts = Util.ts("T", n)
+
+    val tpe: String = s"Record${n}Ops[$ts]"
+
+    val selfTpe: String = s"Record$n[$ts]"
+
+    override val importSelf: Boolean = true
+
+    lazy val members: Seq[String] = {
+      val tpe = if (n == 1) "Tuple1[T1]" else s"($ts)"
+      val body = if (n == 1) "Tuple1(value1)" else s"(${Util.ns(n, "value" + _)})"
+      val tuple =
+        s"""def asTuple: $tpe = $body
+           |""".stripMargin
+
+      Seq(tuple)
+    }
+  }
+
+
+  object Util {
+    def ns(n: Int, f: Int => String): String = (1 to n).map(f).mkString(", ")
+    def ts(prefix: String, n: Int): String = ns(n, prefix + _)
+  }
 
   implicit class IndentOps(val self: String) extends AnyVal {
     def indent: String = indent(1)
