@@ -150,7 +150,7 @@ object SyntaxGenerator {
         (t, o) <- Seq(
           "Condition" -> "other",
           "Field[java.lang.Boolean]" -> "other",
-          "java.lang.Boolean" -> "DSL.value(other)"
+          "java.lang.Boolean" -> "DSL.inline(other)"
         )
       } yield
         s"""def $op(other: $t): Condition = $self.$m($o)

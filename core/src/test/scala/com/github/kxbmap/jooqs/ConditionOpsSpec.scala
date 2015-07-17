@@ -26,10 +26,10 @@ class ConditionOpsSpec extends FunSpec {
         val r = DSL.field("r", SQLDataType.BOOLEAN)
         assert((l && r) == l.and(r))
       }
-      it("should be 'and' with boolean as value") {
+      it("should be 'and' with inlined boolean") {
         val l = DSL.trueCondition()
         val r: java.lang.Boolean = true
-        assert((l && r) == l.and(DSL.value(r)))
+        assert((l && r) == l.and(DSL.inline(r)))
       }
     }
 
@@ -44,10 +44,10 @@ class ConditionOpsSpec extends FunSpec {
         val r = DSL.field("r", SQLDataType.BOOLEAN)
         assert((l || r) == l.or(r))
       }
-      it("should be 'or' with boolean as value") {
+      it("should be 'or' with inlined boolean") {
         val l = DSL.trueCondition()
         val r: java.lang.Boolean = true
-        assert((l || r) == l.or(DSL.value(r)))
+        assert((l || r) == l.or(DSL.inline(r)))
       }
     }
 
