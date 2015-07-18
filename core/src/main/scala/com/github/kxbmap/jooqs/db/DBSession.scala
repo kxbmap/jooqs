@@ -1,5 +1,6 @@
 package com.github.kxbmap.jooqs.db
 
+import com.github.kxbmap.jooqs.syntax._
 import java.sql.Connection
 import org.jooq.{Configuration, DSLContext}
 import scala.language.implicitConversions
@@ -28,10 +29,10 @@ private[db] class DefaultTxDBSession(top: Configuration) extends TxDBSession {
 
   def dslContext: DSLContext = new ScalaDSLContext(configuration)
 
-  def savepoint[T: TxBoundary](block: => T): T = dslContext.transactionResult(config => {
-    config.data(TxBoundary.Key, TxBoundary[T])
-    configVar.withValue(config)(block)
-  })
+  def savepoint[T: TxBoundary](block: => T): T =
+    dslContext.withTransaction {
+      configVar.withValue(_)(block)
+    }
 }
 
 private[db] class DefaultUnmanagedDBSession(connection: Connection, c: Configuration) extends UnmanagedDBSession {

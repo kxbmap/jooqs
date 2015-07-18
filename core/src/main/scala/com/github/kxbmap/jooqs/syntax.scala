@@ -1,8 +1,9 @@
 package com.github.kxbmap.jooqs
 
-import com.github.kxbmap.jooqs.db.DBSession
+import com.github.kxbmap.jooqs.db.{DBSession, DefaultTransactionContext, TxBoundary}
 import org.jooq._
 import org.jooq.impl.DSL
+import scala.util.control.ControlThrowable
 
 object syntax {
 
@@ -47,6 +48,24 @@ object syntax {
     def select(fields: Array[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
 
     def select(fields: Seq[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
+
+    def withTransaction[T: TxBoundary](body: Configuration => T): T = {
+      val ctx = new DefaultTransactionContext(self.configuration.derive())
+      val provider = ctx.configuration.transactionProvider()
+      try {
+        provider.begin(ctx)
+        val result = body(ctx.configuration)
+        TxBoundary[T].finish(result, provider, ctx)
+      } catch {
+        case e: ControlThrowable =>
+          provider.commit(ctx)
+          throw e
+
+        case e: Throwable =>
+          provider.rollback(ctx.cause(e))
+          throw e
+      }
+    }
   }
 
 

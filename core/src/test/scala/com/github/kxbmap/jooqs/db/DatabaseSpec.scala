@@ -1,15 +1,18 @@
 package com.github.kxbmap.jooqs.db
 
 import com.github.kxbmap.jooqs.syntax._
-import org.jooq.exception.DataAccessException
 import org.jooq.impl.{DSL, SQLDataType}
 import org.scalatest.{BeforeAndAfter, FunSpec}
 import scala.collection.JavaConversions._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.Try
+import scala.util.control.NoStackTrace
 
 class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
+
+  class DummyException extends Exception with NoStackTrace
+
 
   val USER = DSL.table("USER")
   val ID = DSL.field("ID", SQLDataType.BIGINT.nullable(false))
@@ -53,7 +56,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
         }
 
         it("rollback when exception raised") {
-          try
+          intercept[DummyException] {
             db.withTransaction { implicit s =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
@@ -61,10 +64,8 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
               assert(dsl.selectFrom(USER).fetch().size() == 1)
 
-              throw new Exception("will rollback")
+              throw new DummyException()
             }
-          catch {
-            case _: DataAccessException =>
           }
           assertFetchNames(Nil)
         }
@@ -101,7 +102,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                   .values(1L, "Alice")
                   .execute()
 
-                throw new Exception("will rollback")
+                throw new DummyException()
               }
             }
             assertFetchNames(Nil)
@@ -132,7 +133,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                   .values(1L, "Alice")
                   .execute()
 
-                throw new Exception("will rollback")
+                throw new DummyException()
               }
             }
             Await.ready(f, Duration.Inf)
@@ -174,10 +175,10 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                   .values(2L, "Bob")
                   .execute()
 
-                throw new Exception()
+                throw new DummyException()
               }
             catch {
-              case _: Throwable =>
+              case _: DummyException =>
             }
 
             dsl.insertInto(USER, ID, NAME)
@@ -188,7 +189,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
         }
 
         it("rollback transaction") {
-          intercept[DataAccessException] {
+          intercept[DummyException] {
             db.withTransaction { implicit s =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
@@ -199,7 +200,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                   .values(2L, "Bob")
                   .execute()
 
-                throw new Exception()
+                throw new DummyException()
               }
 
               dsl.insertInto(USER, ID, NAME)
@@ -226,10 +227,10 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                   dsl.insertInto(USER, ID, NAME)
                     .values(3L, "Charlie")
                     .execute()
-                  throw new Exception
+                  throw new DummyException()
                 }
               catch {
-                case _: Throwable =>
+                case _: DummyException =>
               }
 
               dsl.insertInto(USER, ID, NAME)
@@ -278,7 +279,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                     .values(2L, "Bob")
                     .execute()
 
-                  throw new Exception()
+                  throw new DummyException()
                 }
               }
 
@@ -307,7 +308,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                     .execute()
                 }
               }.recover {
-                case _ => 42
+                case _: DummyException => 42
               }.andThen {
                 case _ =>
                   dsl.insertInto(USER, ID, NAME)
@@ -332,10 +333,10 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                     .values(2L, "Bob")
                     .execute()
 
-                  throw new Exception()
+                  throw new DummyException()
                 }
               }.recover {
-                case _ => 42
+                case _: DummyException => 42
               }.andThen {
                 case _ =>
                   dsl.insertInto(USER, ID, NAME)
@@ -353,7 +354,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
     describe("withSession") {
       it("commit each statement") {
-        try
+        intercept[DummyException] {
           db.withSession { implicit s =>
             dsl.insertInto(USER, ID, NAME)
               .values(1L, "Alice")
@@ -363,10 +364,8 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               .values(2L, "Bob")
               .execute()
 
-            throw new Exception
+            throw new DummyException()
           }
-        catch {
-          case _: Throwable =>
         }
         assertFetchNames(List("Alice", "Bob"))
       }

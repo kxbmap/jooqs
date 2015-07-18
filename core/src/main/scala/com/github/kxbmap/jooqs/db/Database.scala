@@ -1,5 +1,6 @@
 package com.github.kxbmap.jooqs.db
 
+import com.github.kxbmap.jooqs.syntax._
 import java.sql.Connection
 import java.util.Properties
 import javax.sql.DataSource
@@ -24,10 +25,9 @@ private[db] class DefaultDatabase(val configuration: Configuration) extends Data
   private val dslContext = new ScalaDSLContext(configuration)
 
   def withTransaction[T: TxBoundary](block: TxDBSession => T): T =
-    dslContext.transactionResult(config => {
-      config.data(TxBoundary.Key, TxBoundary[T])
+    dslContext.withTransaction { config =>
       block(new DefaultTxDBSession(config))
-    })
+    }
 
   def withSession[T](block: DBSession => T): T = {
     val session = getSession(autoCommit = true)
