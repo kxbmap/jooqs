@@ -3,14 +3,14 @@ package com.github.kxbmap.jooqs.db
 import java.sql.Connection
 import java.util.Properties
 import javax.sql.DataSource
+import org.jooq._
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
-import org.jooq.{Configuration, ConnectionProvider, DSLContext, SQLDialect}
 import scala.util.control.NonFatal
 
 trait Database extends Scope {
 
-  def withTransaction[T](block: TxDBSession => T): T
+  def withTransaction[T: TxBoundary](block: TxDBSession => T): T
 
   def withSession[T](block: DBSession => T): T
 
@@ -23,8 +23,11 @@ private[db] class DefaultDatabase(val configuration: Configuration) extends Data
 
   private val dslContext = new ScalaDSLContext(configuration)
 
-  def withTransaction[T](block: TxDBSession => T): T =
-    dslContext.transactionResult(config => block(new DefaultTxDBSession(config)))
+  def withTransaction[T: TxBoundary](block: TxDBSession => T): T =
+    dslContext.transactionResult(config => {
+      config.data(TxBoundary.Key, TxBoundary[T])
+      block(new DefaultTxDBSession(config))
+    })
 
   def withSession[T](block: DBSession => T): T = {
     val session = getSession(autoCommit = true)

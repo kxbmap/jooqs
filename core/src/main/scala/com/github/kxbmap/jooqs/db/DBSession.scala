@@ -10,7 +10,7 @@ trait DBSession extends Scope {
 }
 
 trait TxDBSession extends DBSession {
-  def savepoint[T](block: => T): T
+  def savepoint[T: TxBoundary](block: => T): T
 }
 
 trait UnmanagedDBSession extends DBSession {
@@ -28,7 +28,10 @@ private[db] class DefaultTxDBSession(top: Configuration) extends TxDBSession {
 
   def dslContext: DSLContext = new ScalaDSLContext(configuration)
 
-  def savepoint[T](block: => T): T = dslContext.transactionResult(configVar.withValue(_)(block))
+  def savepoint[T: TxBoundary](block: => T): T = dslContext.transactionResult(config => {
+    config.data(TxBoundary.Key, TxBoundary[T])
+    configVar.withValue(config)(block)
+  })
 }
 
 private[db] class DefaultUnmanagedDBSession(connection: Connection, c: Configuration) extends UnmanagedDBSession {

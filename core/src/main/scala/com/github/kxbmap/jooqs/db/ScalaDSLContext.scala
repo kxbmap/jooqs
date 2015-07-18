@@ -14,7 +14,10 @@ class ScalaDSLContext(configuration: Configuration) extends DefaultDSLContext(co
     try {
       provider.begin(ctx)
       val result = transactional.run(ctx.configuration)
-      provider.commit(ctx)
+      ctx.configuration.data(TxBoundary.Key) match {
+        case null                       => provider.commit(ctx)
+        case b: TxBoundary[T@unchecked] => b.finish(result, provider, ctx)
+      }
       result
     } catch {
       case control: ControlThrowable =>

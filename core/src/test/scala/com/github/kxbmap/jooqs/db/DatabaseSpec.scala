@@ -4,6 +4,7 @@ import org.jooq.exception.DataAccessException
 import org.jooq.impl.{DSL, SQLDataType}
 import org.scalatest.fixture
 import scala.collection.JavaConversions._
+import scala.util.Try
 
 class DatabaseSpec extends fixture.FunSpec with DatabaseFixture {
 
@@ -66,6 +67,32 @@ class DatabaseSpec extends fixture.FunSpec with DatabaseFixture {
           }
           method()
           assert(fetchNames(db) == List("Alice"))
+        }
+
+        describe("with Try boundary") {
+          it("commit if success") { db =>
+            db.withTransaction { implicit s =>
+              Try {
+                dsl.insertInto(USER, ID, NAME)
+                  .values(1L, "Alice")
+                  .execute()
+              }
+            }
+            assert(fetchNames(db) == List("Alice"))
+          }
+
+          it("rollback if failure") { db =>
+            db.withTransaction { implicit s =>
+              Try {
+                dsl.insertInto(USER, ID, NAME)
+                  .values(1L, "Alice")
+                  .execute()
+
+                throw new Exception("will rollback")
+              }
+            }
+            assert(fetchNames(db) == Nil)
+          }
         }
       }
 
@@ -169,6 +196,52 @@ class DatabaseSpec extends fixture.FunSpec with DatabaseFixture {
               .execute()
           }
           assert(fetchNames(db) == List("Alice", "Bob", "Dave", "Ellen"))
+        }
+
+        describe("with Try boundary") {
+          it ("commit savepoint if success") { db =>
+            db.withTransaction { implicit s =>
+              dsl.insertInto(USER, ID, NAME)
+                .values(1L, "Alice")
+                .execute()
+
+              s.savepoint {
+                Try {
+                  dsl.insertInto(USER, ID, NAME)
+                    .values(2L, "Bob")
+                    .execute()
+                }
+              }
+
+              dsl.insertInto(USER, ID, NAME)
+                .values(3L, "Charlie")
+                .execute()
+            }
+            assert(fetchNames(db) == List("Alice", "Bob", "Charlie"))
+          }
+
+          it("rollback savepoint if failure") { db =>
+            db.withTransaction { implicit s =>
+              dsl.insertInto(USER, ID, NAME)
+                .values(1L, "Alice")
+                .execute()
+
+              s.savepoint {
+                Try {
+                  dsl.insertInto(USER, ID, NAME)
+                    .values(2L, "Bob")
+                    .execute()
+
+                  throw new Exception()
+                }
+              }
+
+              dsl.insertInto(USER, ID, NAME)
+                .values(3L, "Charlie")
+                .execute()
+            }
+            assert(fetchNames(db) == List("Alice", "Charlie"))
+          }
         }
       }
     }
