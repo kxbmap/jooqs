@@ -20,12 +20,12 @@ trait Database extends Scope {
   def shutdown(): Unit
 }
 
-private[db] class DefaultDatabase(val configuration: Configuration) extends Database {
+private[db] class DefaultDatabase(dsl: DSLContext) extends Database {
 
-  private val dslContext = new ScalaDSLContext(configuration)
+  val configuration: Configuration = dsl.configuration()
 
   def withTransaction[T: TxBoundary](block: TxDBSession => T): T =
-    dslContext.withTransaction { config =>
+    dsl.withTransaction { config =>
       block(new DefaultTxDBSession(config))
     }
 
@@ -75,10 +75,9 @@ object Database {
 
   def apply(connectionProvider: ConnectionProvider, dialect: SQLDialect, settings: Settings): Database = Database(DSL.using(connectionProvider, dialect, settings))
 
+  def apply(ctx: DSLContext): Database = new DefaultDatabase(ctx)
 
-  private def apply(ctx: DSLContext): Database = new DefaultDatabase(ctx.configuration())
-
-  private def closeOnShutdown(ctx: DSLContext): Database = new DefaultDatabase(ctx.configuration()) with CloseOnShutdown
+  private def closeOnShutdown(ctx: DSLContext): Database = new DefaultDatabase(ctx) with CloseOnShutdown
 
   private trait CloseOnShutdown extends Database {
     abstract override def shutdown(): Unit = {

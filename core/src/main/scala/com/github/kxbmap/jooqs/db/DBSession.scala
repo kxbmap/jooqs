@@ -2,6 +2,7 @@ package com.github.kxbmap.jooqs.db
 
 import com.github.kxbmap.jooqs.syntax._
 import java.sql.Connection
+import org.jooq.impl.DSL
 import org.jooq.{Configuration, DSLContext}
 import scala.language.implicitConversions
 import scala.util.DynamicVariable
@@ -27,7 +28,7 @@ private[db] class DefaultTxDBSession(top: Configuration) extends TxDBSession {
 
   def configuration: Configuration = configVar.value
 
-  def dslContext: DSLContext = new ScalaDSLContext(configuration)
+  def dslContext: DSLContext = DSL.using(configuration)
 
   def savepoint[T: TxBoundary](block: => T): T =
     dslContext.withTransaction {
@@ -39,7 +40,7 @@ private[db] class DefaultUnmanagedDBSession(connection: Connection, c: Configura
 
   lazy val configuration: Configuration = c.derive(connection)
 
-  lazy val dslContext: DSLContext = new ScalaDSLContext(configuration)
+  lazy val dslContext: DSLContext = DSL.using(configuration)
 
   def commit(): Unit = connection.commit()
 

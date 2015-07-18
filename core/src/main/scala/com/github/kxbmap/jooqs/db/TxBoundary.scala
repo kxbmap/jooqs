@@ -11,8 +11,6 @@ trait TxBoundary[T] {
 
 object TxBoundary {
 
-  final val Key = "com.github.kxbmap.jooqs.db.TxBoundary"
-
   def apply[T](implicit b: TxBoundary[T]): TxBoundary[T] = b
 
 
