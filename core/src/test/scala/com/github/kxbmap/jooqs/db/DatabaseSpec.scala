@@ -5,6 +5,8 @@ import org.jooq.exception.DataAccessException
 import org.jooq.impl.{DSL, SQLDataType}
 import org.scalatest.{BeforeAndAfter, FunSpec}
 import scala.collection.JavaConversions._
+import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Future}
 import scala.util.Try
 
 class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
@@ -102,6 +104,39 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                 throw new Exception("will rollback")
               }
             }
+            assertFetchNames(Nil)
+          }
+        }
+
+        describe("with Future boundary") {
+
+          import scala.concurrent.ExecutionContext.Implicits.global
+
+          it("commit if success") {
+            val f = db.withTransaction { implicit s =>
+              Future {
+                dsl.insertInto(USER, ID, NAME)
+                  .values(1L, "Alice")
+                  .execute()
+              }
+            }
+            Await.ready(f, Duration.Inf)
+
+            assertFetchNames(List("Alice"))
+          }
+
+          it("rollback if failure") {
+            val f = db.withTransaction { implicit s =>
+              Future {
+                dsl.insertInto(USER, ID, NAME)
+                  .values(1L, "Alice")
+                  .execute()
+
+                throw new Exception("will rollback")
+              }
+            }
+            Await.ready(f, Duration.Inf)
+
             assertFetchNames(Nil)
           }
         }
@@ -210,7 +245,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
         }
 
         describe("with Try boundary") {
-          it ("commit savepoint if success") {
+          it("commit savepoint if success") {
             db.withTransaction { implicit s =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
@@ -251,6 +286,65 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                 .values(3L, "Charlie")
                 .execute()
             }
+            assertFetchNames(List("Alice", "Charlie"))
+          }
+        }
+
+        describe("with Future boundary") {
+
+          import scala.concurrent.ExecutionContext.Implicits.global
+
+          it("commit savepoint if success") {
+            val f = db.withTransaction { implicit s =>
+              dsl.insertInto(USER, ID, NAME)
+                .values(1L, "Alice")
+                .execute()
+
+              s.savepoint {
+                Future {
+                  dsl.insertInto(USER, ID, NAME)
+                    .values(2L, "Bob")
+                    .execute()
+                }
+              }.recover {
+                case _ => 42
+              }.andThen {
+                case _ =>
+                  dsl.insertInto(USER, ID, NAME)
+                    .values(3L, "Charlie")
+                    .execute()
+              }
+            }
+            Await.ready(f, Duration.Inf)
+
+            assertFetchNames(List("Alice", "Bob", "Charlie"))
+          }
+
+          it("rollback savepoint if failure") {
+            val f = db.withTransaction { implicit s =>
+              dsl.insertInto(USER, ID, NAME)
+                .values(1L, "Alice")
+                .execute()
+
+              s.savepoint {
+                Future[Int] {
+                  dsl.insertInto(USER, ID, NAME)
+                    .values(2L, "Bob")
+                    .execute()
+
+                  throw new Exception()
+                }
+              }.recover {
+                case _ => 42
+              }.andThen {
+                case _ =>
+                  dsl.insertInto(USER, ID, NAME)
+                    .values(3L, "Charlie")
+                    .execute()
+              }
+            }
+            Await.ready(f, Duration.Inf)
+
             assertFetchNames(List("Alice", "Charlie"))
           }
         }
