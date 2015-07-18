@@ -1,5 +1,6 @@
 package com.github.kxbmap.jooqs.db
 
+import com.github.kxbmap.jooqs.syntax._
 import org.jooq.{TransactionContext, TransactionProvider}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
@@ -27,9 +28,8 @@ object TxBoundary {
 
   private[this] final val _tryTxBoundary: TxBoundary[Try[Any]] = (result, provider, ctx) => {
     result match {
-      case Success(_)            => provider.commit(ctx)
-      case Failure(e: Exception) => provider.rollback(ctx.cause(e))
-      case Failure(_)            => provider.rollback(ctx)
+      case Success(_) => provider.commit(ctx)
+      case Failure(e) => provider.rollback(ctx.cause(e))
     }
     result
   }
@@ -37,9 +37,8 @@ object TxBoundary {
 
   implicit def futureTxBoundary[T](implicit ec: ExecutionContext): TxBoundary[Future[T]] = (result, provider, ctx) =>
     result.andThen {
-      case Success(_)            => provider.commit(ctx)
-      case Failure(e: Exception) => provider.rollback(ctx.cause(e))
-      case Failure(_)            => provider.rollback(ctx)
+      case Success(_) => provider.commit(ctx)
+      case Failure(e) => provider.rollback(ctx.cause(e))
     }
 
 }

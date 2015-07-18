@@ -49,6 +49,16 @@ object syntax {
     def select(fields: Seq[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
   }
 
+
+  implicit class TransactionContextOps(private val self: TransactionContext) extends AnyVal {
+
+    def cause(cause: Throwable): TransactionContext = cause match {
+      case e: Exception => self.cause(e)
+      case _            => self
+    }
+  }
+
+
   //// generation:start
 
   //// start:ConditionOps
