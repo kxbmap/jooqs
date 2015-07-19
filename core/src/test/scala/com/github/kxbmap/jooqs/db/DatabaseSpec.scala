@@ -57,7 +57,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
         it("rollback when exception raised") {
           intercept[DummyException] {
-            db.withTransaction { implicit s =>
+            db.withTransaction[Int] { implicit s =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
                 .execute()
@@ -72,7 +72,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
         it("commit when `return`") {
           def method(): Unit = {
-            db.withTransaction { implicit s =>
+            db.withTransaction[Unit] { implicit s =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
                 .execute()
@@ -170,7 +170,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               .execute()
 
             try
-              s.savepoint {
+              s.savepoint[Int] {
                 dsl.insertInto(USER, ID, NAME)
                   .values(2L, "Bob")
                   .execute()
@@ -195,7 +195,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                 .values(1L, "Alice")
                 .execute()
 
-              s.savepoint {
+              s.savepoint[Int] {
                 dsl.insertInto(USER, ID, NAME)
                   .values(2L, "Bob")
                   .execute()
@@ -223,7 +223,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                 .execute()
 
               try
-                s.savepoint {
+                s.savepoint[Int] {
                   dsl.insertInto(USER, ID, NAME)
                     .values(3L, "Charlie")
                     .execute()
