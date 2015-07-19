@@ -97,7 +97,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
           it("rollback if failure") {
             db.withTransaction { implicit s =>
-              Try {
+              Try[Int] {
                 dsl.insertInto(USER, ID, NAME)
                   .values(1L, "Alice")
                   .execute()
@@ -128,7 +128,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
           it("rollback if failure") {
             val f = db.withTransaction { implicit s =>
-              Future {
+              Future[Int] {
                 dsl.insertInto(USER, ID, NAME)
                   .values(1L, "Alice")
                   .execute()
@@ -274,7 +274,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                 .execute()
 
               s.savepoint {
-                Try {
+                Try[Int] {
                   dsl.insertInto(USER, ID, NAME)
                     .values(2L, "Bob")
                     .execute()
