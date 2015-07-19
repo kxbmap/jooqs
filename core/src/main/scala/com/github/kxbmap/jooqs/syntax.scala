@@ -49,21 +49,20 @@ object syntax {
 
     def select(fields: Seq[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
 
-    def withTransaction[T: TxBoundary](body: Configuration => T): T = {
+    def withTransaction[T](body: Configuration => T)(implicit boundary: TxBoundary[T]): T = {
       val ctx = new DefaultTransactionContext(self.configuration.derive())
       val provider = ctx.configuration.transactionProvider()
       try {
         provider.begin(ctx)
         val result = body(ctx.configuration)
-        TxBoundary[T].finish(result, provider, ctx)
+        boundary.onFinish(result, provider, ctx)
       } catch {
         case e: ControlThrowable =>
           provider.commit(ctx)
           throw e
 
         case e: Throwable =>
-          provider.rollback(ctx.cause(e))
-          throw e
+          boundary.onError(e, provider, ctx)
       }
     }
   }
