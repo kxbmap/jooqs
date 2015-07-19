@@ -38,10 +38,6 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
     dsl.selectFrom(USER).fetch(NAME).toList
   }
 
-  def assertFetchNames(expected: List[String]): Unit = {
-    assert(fetchNames() == expected)
-  }
-
 
   describe("Database") {
     describe("withTransaction") {
@@ -52,7 +48,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               .values(1L, "Alice")
               .execute()
           }
-          assertFetchNames(List("Alice"))
+          assert(fetchNames() == List("Alice"))
         }
 
         it("rollback when exception raised") {
@@ -67,7 +63,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               throw new DummyException()
             }
           }
-          assertFetchNames(Nil)
+          assert(fetchNames() == Nil)
         }
 
         it("commit when `return`") {
@@ -80,7 +76,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
             }
           }
           method()
-          assertFetchNames(List("Alice"))
+          assert(fetchNames() == List("Alice"))
         }
 
         describe("with Try boundary") {
@@ -92,7 +88,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                   .execute()
               }
             }
-            assertFetchNames(List("Alice"))
+            assert(fetchNames() == List("Alice"))
           }
 
           it("rollback if failure") {
@@ -105,7 +101,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                 throw new DummyException()
               }
             }
-            assertFetchNames(Nil)
+            assert(fetchNames() == Nil)
           }
         }
 
@@ -123,7 +119,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
             }
             Await.ready(f, Duration.Inf)
 
-            assertFetchNames(List("Alice"))
+            assert(fetchNames() == List("Alice"))
           }
 
           it("rollback if failure") {
@@ -138,7 +134,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
             }
             Await.ready(f, Duration.Inf)
 
-            assertFetchNames(Nil)
+            assert(fetchNames() == Nil)
           }
         }
       }
@@ -160,7 +156,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               .values(3L, "Charlie")
               .execute()
           }
-          assertFetchNames(List("Alice", "Bob", "Charlie"))
+          assert(fetchNames() == List("Alice", "Bob", "Charlie"))
         }
 
         it("rollback savepoint") {
@@ -185,7 +181,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               .values(3L, "Charlie")
               .execute()
           }
-          assertFetchNames(List("Alice", "Charlie"))
+          assert(fetchNames() == List("Alice", "Charlie"))
         }
 
         it("rollback transaction") {
@@ -208,7 +204,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                 .execute()
             }
           }
-          assertFetchNames(Nil)
+          assert(fetchNames() == Nil)
         }
 
         it("nested") {
@@ -242,7 +238,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               .values(5L, "Ellen")
               .execute()
           }
-          assertFetchNames(List("Alice", "Bob", "Dave", "Ellen"))
+          assert(fetchNames() == List("Alice", "Bob", "Dave", "Ellen"))
         }
 
         describe("with Try boundary") {
@@ -264,7 +260,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                 .values(3L, "Charlie")
                 .execute()
             }
-            assertFetchNames(List("Alice", "Bob", "Charlie"))
+            assert(fetchNames() == List("Alice", "Bob", "Charlie"))
           }
 
           it("rollback savepoint if failure") {
@@ -287,7 +283,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
                 .values(3L, "Charlie")
                 .execute()
             }
-            assertFetchNames(List("Alice", "Charlie"))
+            assert(fetchNames() == List("Alice", "Charlie"))
           }
         }
 
@@ -318,7 +314,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
             }
             Await.ready(f, Duration.Inf)
 
-            assertFetchNames(List("Alice", "Bob", "Charlie"))
+            assert(fetchNames() == List("Alice", "Bob", "Charlie"))
           }
 
           it("rollback savepoint if failure") {
@@ -346,7 +342,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
             }
             Await.ready(f, Duration.Inf)
 
-            assertFetchNames(List("Alice", "Charlie"))
+            assert(fetchNames() == List("Alice", "Charlie"))
           }
         }
       }
@@ -367,7 +363,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
             throw new DummyException()
           }
         }
-        assertFetchNames(List("Alice", "Bob"))
+        assert(fetchNames() == List("Alice", "Bob"))
       }
     }
 
@@ -380,13 +376,13 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               .values(1L, "Alice")
               .execute()
 
-            assertFetchNames(List("Alice"))
+            assert(fetchNames() == List("Alice"))
 
             dsl.insertInto(USER, ID, NAME)
               .values(2L, "Bob")
               .execute()
 
-            assertFetchNames(List("Alice", "Bob"))
+            assert(fetchNames() == List("Alice", "Bob"))
           } finally {
             s.close()
           }
@@ -405,13 +401,13 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               .values(2L, "Bob")
               .execute()
 
-            assertFetchNames(Nil)
+            assert(fetchNames() == Nil)
 
             s.commit()
           } finally {
             s.close()
           }
-          assertFetchNames(List("Alice", "Bob"))
+          assert(fetchNames() == List("Alice", "Bob"))
         }
 
         it("rollback") {
@@ -429,7 +425,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
           } finally {
             s.close()
           }
-          assertFetchNames(Nil)
+          assert(fetchNames() == Nil)
         }
       }
     }
