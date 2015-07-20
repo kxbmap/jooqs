@@ -42,20 +42,7 @@ sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
 
   private[this] final val _tryTxBoundary: TxBoundary[Try[Any]] = (result, provider, ctx) =>
     result match {
-      case Success(_) =>
-        try {
-          provider.commit(ctx)
-          result
-        } catch {
-          case NonFatal(ce) =>
-            try
-              provider.rollback(ctx.cause(ce))
-            catch {
-              case NonFatal(re) => ce.addSuppressed(re)
-            }
-            Failure(ce)
-        }
-
+      case Success(v) => Try(_exceptionTxBoundary.finish(v, provider, ctx))
       case Failure(e) =>
         try {
           provider.rollback(ctx.cause(e))
@@ -70,32 +57,8 @@ sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
 
   implicit def futureTxBoundary[T](implicit ec: ExecutionContext): TxBoundary[Future[T]] = (result, provider, ctx) => {
     val p = Promise[T]()
-    result.onComplete {
-      case s@Success(_) =>
-        val r = try {
-          provider.commit(ctx)
-          s
-        } catch {
-          case NonFatal(ce) =>
-            try
-              provider.rollback(ctx.cause(ce))
-            catch {
-              case NonFatal(re) => ce.addSuppressed(re)
-            }
-            Failure(ce)
-        }
-        p.complete(r)
-
-      case f@Failure(e) =>
-        val r = try {
-          provider.rollback(ctx.cause(e))
-          f
-        } catch {
-          case NonFatal(re) =>
-            re.addSuppressed(e)
-            Failure(re)
-        }
-        p.complete(r)
+    result.onComplete { t =>
+      p.complete(tryTxBoundary[T].finish(t, provider, ctx))
     }
     p.future
   }
