@@ -4,6 +4,7 @@ import org.jooq._
 import org.jooq.impl.DSL
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import org.mockito.{Mockito => M}
 import org.scalatest.FunSpec
 import org.scalatest.mock.MockitoSugar
 import scala.concurrent.duration.Duration
@@ -39,41 +40,54 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
 
       implicit def futureAwait[T]: Future[T] => Unit = Await.ready(_, Duration.Inf)
 
+
+      def verifyFlow[T](tx: DSLContext => T)(
+        when: TransactionProvider => Unit = (_: TransactionProvider) => (),
+        verify: TransactionProvider => Unit = (_: TransactionProvider) => ())
+        (implicit await: T => Unit = (_: T) => ()): T = {
+
+        val dsl = mock[DSLContext](RETURNS_DEEP_STUBS)
+        val provider = mock[TransactionProvider]
+
+        M.when(dsl.configuration().derive().transactionProvider()).thenReturn(provider)
+        when(provider)
+
+        val result = tx(dsl)
+        await(result)
+
+        verify(provider)
+        verifyNoMoreInteractions(provider)
+
+        result
+      }
+
+
       describe("flow of commit") {
 
-        def flow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = {
-          val dsl = mock[DSLContext](RETURNS_DEEP_STUBS)
-          val provider = mock[TransactionProvider]
-
-          when(dsl.configuration().derive().transactionProvider()).thenReturn(provider)
-
-          val result = tx(dsl)
-          await(result)
-
-          val o = inOrder(provider)
-          o.verify(provider).begin(any())
-          o.verify(provider).commit(any())
-          verifyNoMoreInteractions(provider)
-
-          result
-        }
+        def verifyCommitFlow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = verifyFlow(tx)(
+          verify = { provider =>
+            val o = inOrder(provider)
+            o.verify(provider).begin(any())
+            o.verify(provider).commit(any())
+          }
+        )
 
         it("should verified with exception boundary") {
-          val r = flow { dsl =>
+          val r = verifyCommitFlow { dsl =>
             dsl.withTransaction { _ => 42 }
           }
           assert(r == 42)
         }
 
         it("should verified with try boundary") {
-          val r = flow { dsl =>
+          val r = verifyCommitFlow { dsl =>
             dsl.withTransaction { _ => Try(42) }
           }
           assert(r.isSuccess)
         }
 
         it("should verified with future boundary") {
-          val r = flow { dsl =>
+          val r = verifyCommitFlow { dsl =>
             dsl.withTransaction { _ => Future.successful(42) }
           }
           assert(r.value.exists(_.isSuccess))
@@ -83,25 +97,16 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
 
       describe("flow of rollback") {
 
-        def flow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = {
-          val dsl = mock[DSLContext](RETURNS_DEEP_STUBS)
-          val provider = mock[TransactionProvider]
-
-          when(dsl.configuration().derive().transactionProvider()).thenReturn(provider)
-
-          val result = tx(dsl)
-          await(result)
-
-          val o = inOrder(provider)
-          o.verify(provider).begin(any())
-          o.verify(provider).rollback(any())
-          verifyNoMoreInteractions(provider)
-
-          result
-        }
+        def verifyRollbackFlow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = verifyFlow(tx)(
+          verify = { provider =>
+            val o = inOrder(provider)
+            o.verify(provider).begin(any())
+            o.verify(provider).rollback(any())
+          }
+        )
 
         it("should verified with exception boundary") {
-          flow { dsl =>
+          verifyRollbackFlow { dsl =>
             intercept[DummyException] {
               dsl.withTransaction[Int] { _ => throw new DummyException }
             }
@@ -109,7 +114,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with try boundary") {
-          val r = flow { dsl =>
+          val r = verifyRollbackFlow { dsl =>
             dsl.withTransaction { _ => Try[Int] { throw new DummyException } }
           }
           assert(r.isFailure)
@@ -117,7 +122,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with future boundary") {
-          val r = flow { dsl =>
+          val r = verifyRollbackFlow { dsl =>
             dsl.withTransaction { _ => Future.failed[Int](new DummyException) }
           }
           assert(r.value.exists(_.isFailure))
@@ -127,7 +132,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         describe("with uncaught exception") {
 
           it("should verified with try boundary") {
-            flow { dsl =>
+            verifyRollbackFlow { dsl =>
               intercept[DummyException] {
                 dsl.withTransaction { _ =>
                   throw new DummyException
@@ -138,7 +143,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
           }
 
           it("should verified with future boundary") {
-            flow { dsl =>
+            verifyRollbackFlow { dsl =>
               intercept[DummyException] {
                 dsl.withTransaction { _ =>
                   throw new DummyException
@@ -153,27 +158,20 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
 
       describe("flow of commit to fail") {
 
-        def flow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = {
-          val dsl = mock[DSLContext](RETURNS_DEEP_STUBS)
-          val provider = mock[TransactionProvider]
-
-          when(dsl.configuration().derive().transactionProvider()).thenReturn(provider)
-          when(provider.commit(any())).thenThrow(new DummyCommitFailedException)
-
-          val result = tx(dsl)
-          await(result)
-
-          val o = inOrder(provider)
-          o.verify(provider).begin(any())
-          o.verify(provider).commit(any())
-          o.verify(provider).rollback(any())
-          verifyNoMoreInteractions(provider)
-
-          result
-        }
+        def verifyCommitFailFlow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = verifyFlow(tx)(
+          when = { provider =>
+            when(provider.commit(any())).thenThrow(new DummyCommitFailedException)
+          },
+          verify = { provider =>
+            val o = inOrder(provider)
+            o.verify(provider).begin(any())
+            o.verify(provider).commit(any())
+            o.verify(provider).rollback(any())
+          }
+        )
 
         it("should verified with exception boundary") {
-          flow { dsl =>
+          verifyCommitFailFlow { dsl =>
             intercept[DummyCommitFailedException] {
               dsl.withTransaction { _ => 42 }
             }
@@ -181,7 +179,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with try boundary") {
-          val t = flow { dsl =>
+          val t = verifyCommitFailFlow { dsl =>
             dsl.withTransaction { _ => Try(42) }
           }
           assert(t.isFailure)
@@ -189,7 +187,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with future boundary") {
-          val f = flow { dsl =>
+          val f = verifyCommitFailFlow { dsl =>
             dsl.withTransaction { _ => Future.successful(42) }
           }
           assert(f.value.exists(_.isFailure))
@@ -200,26 +198,19 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
 
       describe("flow of rollback to fail") {
 
-        def flow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = {
-          val dsl = mock[DSLContext](RETURNS_DEEP_STUBS)
-          val provider = mock[TransactionProvider]
-
-          when(dsl.configuration().derive().transactionProvider()).thenReturn(provider)
-          when(provider.rollback(any())).thenThrow(new DummyRollbackFailedException)
-
-          val result = tx(dsl)
-          await(result)
-
-          val o = inOrder(provider)
-          o.verify(provider).begin(any())
-          o.verify(provider).rollback(any())
-          verifyNoMoreInteractions(provider)
-
-          result
-        }
+        def verifyRollbackFailFlow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = verifyFlow(tx)(
+          when = { provider =>
+            when(provider.rollback(any())).thenThrow(new DummyRollbackFailedException)
+          },
+          verify = { provider =>
+            val o = inOrder(provider)
+            o.verify(provider).begin(any())
+            o.verify(provider).rollback(any())
+          }
+        )
 
         it("should verified with exception boundary") {
-          val e = flow { dsl =>
+          val e = verifyRollbackFailFlow { dsl =>
             intercept[DummyRollbackFailedException] {
               dsl.withTransaction[Int] { _ =>
                 throw new DummyException
@@ -230,7 +221,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with try boundary") {
-          val t = flow { dsl =>
+          val t = verifyRollbackFailFlow { dsl =>
             dsl.withTransaction { _ =>
               Try[Int] {
                 throw new DummyException
@@ -244,7 +235,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with future boundary") {
-          val f = flow { dsl =>
+          val f = verifyRollbackFailFlow { dsl =>
             dsl.withTransaction { _ =>
               Future.failed[Int](new DummyException)
             }
@@ -258,7 +249,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         describe("with uncaught exception") {
 
           it("should verified with try boundary") {
-            val e = flow { dsl =>
+            val e = verifyRollbackFailFlow { dsl =>
               intercept[DummyRollbackFailedException] {
                 dsl.withTransaction { _ =>
                   throw new DummyException
@@ -270,7 +261,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
           }
 
           it("should verified with future boundary") {
-            val e = flow { dsl =>
+            val e = verifyRollbackFailFlow { dsl =>
               intercept[DummyRollbackFailedException] {
                 dsl.withTransaction { _ =>
                   throw new DummyException
@@ -286,28 +277,21 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
 
       describe("flow of both commit and rollback to fail") {
 
-        def flow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = {
-          val dsl = mock[DSLContext](RETURNS_DEEP_STUBS)
-          val provider = mock[TransactionProvider]
-
-          when(dsl.configuration().derive().transactionProvider()).thenReturn(provider)
-          when(provider.commit(any())).thenThrow(new DummyCommitFailedException)
-          when(provider.rollback(any())).thenThrow(new DummyRollbackFailedException)
-
-          val result = tx(dsl)
-          await(result)
-
-          val o = inOrder(provider)
-          o.verify(provider).begin(any())
-          o.verify(provider).commit(any())
-          o.verify(provider).rollback(any())
-          verifyNoMoreInteractions(provider)
-
-          result
-        }
+        def verifyCommitAndRollbackFailFlow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = verifyFlow(tx)(
+          when = { provider =>
+            when(provider.commit(any())).thenThrow(new DummyCommitFailedException)
+            when(provider.rollback(any())).thenThrow(new DummyRollbackFailedException)
+          },
+          verify = { provider =>
+            val o = inOrder(provider)
+            o.verify(provider).begin(any())
+            o.verify(provider).commit(any())
+            o.verify(provider).rollback(any())
+          }
+        )
 
         it("should verified with exception boundary") {
-          val e = flow { dsl =>
+          val e = verifyCommitAndRollbackFailFlow { dsl =>
             intercept[DummyCommitFailedException] {
               dsl.withTransaction { _ => 42 }
             }
@@ -316,7 +300,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with try boundary") {
-          val t = flow { dsl =>
+          val t = verifyCommitAndRollbackFailFlow { dsl =>
             dsl.withTransaction { _ => Try(42) }
           }
           assert(t.isFailure)
@@ -326,7 +310,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with future boundary") {
-          val f = flow { dsl =>
+          val f = verifyCommitAndRollbackFailFlow { dsl =>
             dsl.withTransaction { _ => Future.successful(42) }
           }
           assert(f.value.exists(_.isFailure))
