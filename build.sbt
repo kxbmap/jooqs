@@ -13,7 +13,6 @@ scalacOptions in ThisBuild ++= Seq(
   "-Xexperimental"
 )
 
-fork in ThisBuild := true
 parallelExecution in ThisBuild := false
 
 lazy val generateSyntax = taskKey[Unit]("generate syntax object")
@@ -29,10 +28,7 @@ lazy val core = project.settings(
     "com.h2database" % "h2" % "1.4.187" % "test",
     "com.zaxxer" % "HikariCP" % "2.3.9" % "test",
     "org.slf4j" % "slf4j-simple" % "1.7.12" % "test"
-  ) ++ testDependencies,
-  javaOptions in Test ++= Seq(
-    "-Dorg.slf4j.simpleLogger.defaultLogLevel=warn"
-  )
+  ) ++ testDependencies
 )
 
 lazy val play = project.settings(
