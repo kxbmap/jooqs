@@ -3,7 +3,7 @@ package com.github.kxbmap.jooqs
 import com.github.kxbmap.jooqs.db.{DBSession, DefaultTransactionContext, TxBoundary}
 import org.jooq._
 import org.jooq.impl.DSL
-import scala.util.control.ControlThrowable
+import scala.util.control.{NonFatal, ControlThrowable}
 
 object syntax {
 
@@ -49,7 +49,7 @@ object syntax {
 
     def select(fields: Seq[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
 
-    def withTransaction[T](body: Configuration => T)(implicit boundary: TxBoundary[T]): T = {
+    def withTransaction[T: TxBoundary](body: Configuration => T): T = {
       val ctx = new DefaultTransactionContext(self.configuration.derive())
       val provider = ctx.configuration.transactionProvider()
       val result = try {
@@ -61,9 +61,16 @@ object syntax {
           throw e
 
         case e: Throwable =>
-          boundary.onError(e, provider, ctx)
+          try
+            provider.rollback(ctx.cause(e))
+          catch {
+            case NonFatal(re) =>
+              re.addSuppressed(e)
+              throw re
+          }
+          throw e
       }
-      boundary.onFinish(result, provider, ctx)
+      TxBoundary[T].finish(result, provider, ctx)
     }
 
   }

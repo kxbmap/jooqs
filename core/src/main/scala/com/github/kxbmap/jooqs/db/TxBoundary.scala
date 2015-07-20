@@ -8,9 +8,8 @@ import scala.util.{Failure, Success, Try}
 
 trait TxBoundary[T] {
 
-  def onFinish(result: T, provider: TransactionProvider, ctx: TransactionContext): T
+  def finish(result: T, provider: TransactionProvider, ctx: TransactionContext): T
 
-  def onError(error: Throwable, provider: TransactionProvider, ctx: TransactionContext): T
 }
 
 object TxBoundary extends TxBoundaryInstances {
@@ -24,126 +23,81 @@ sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
 
   implicit def exceptionTxBoundary[T]: TxBoundary[T] = _exceptionTxBoundary.asInstanceOf[TxBoundary[T]]
 
-  private[this] final val _exceptionTxBoundary: TxBoundary[Any] = new TxBoundary[Any] {
-    def onFinish(result: Any, provider: TransactionProvider, ctx: TransactionContext): Any = {
-      try {
-        provider.commit(ctx)
-        result
-      } catch {
-        case NonFatal(ce) =>
-          try
-            provider.rollback(ctx.cause(ce))
-          catch {
-            case NonFatal(re) =>
-              ce.addSuppressed(re)
-          }
-          throw ce
-      }
+  private[this] final val _exceptionTxBoundary: TxBoundary[Any] = (result, provider, ctx) =>
+    try {
+      provider.commit(ctx)
+      result
+    } catch {
+      case NonFatal(ce) =>
+        try
+          provider.rollback(ctx.cause(ce))
+        catch {
+          case NonFatal(re) => ce.addSuppressed(re)
+        }
+        throw ce
     }
-
-    def onError(error: Throwable, provider: TransactionProvider, ctx: TransactionContext): Any = {
-      try
-        provider.rollback(ctx.cause(error))
-      catch {
-        case NonFatal(re) =>
-          re.addSuppressed(error)
-          throw re
-      }
-      throw error
-    }
-  }
 
 
   implicit def tryTxBoundary[T]: TxBoundary[Try[T]] = _tryTxBoundary.asInstanceOf[TxBoundary[Try[T]]]
 
-  private[this] final val _tryTxBoundary: TxBoundary[Try[Any]] = new TxBoundary[Try[Any]] {
+  private[this] final val _tryTxBoundary: TxBoundary[Try[Any]] = (result, provider, ctx) =>
+    result match {
+      case Success(_) =>
+        try {
+          provider.commit(ctx)
+          result
+        } catch {
+          case NonFatal(ce) =>
+            try
+              provider.rollback(ctx.cause(ce))
+            catch {
+              case NonFatal(re) => ce.addSuppressed(re)
+            }
+            Failure(ce)
+        }
 
-    def onFinish(result: Try[Any], provider: TransactionProvider, ctx: TransactionContext): Try[Any] = {
-      result match {
-        case Success(_) =>
-          try {
-            provider.commit(ctx)
-            result
-          } catch {
-            case NonFatal(ce) =>
-              try
-                provider.rollback(ctx.cause(ce))
-              catch {
-                case NonFatal(re) =>
-                  ce.addSuppressed(re)
-              }
-              Failure(ce)
-          }
-
-        case Failure(e) =>
-          try {
-            provider.rollback(ctx.cause(e))
-            result
-          } catch {
-            case NonFatal(re) =>
-              re.addSuppressed(e)
-              Failure(re)
-          }
-      }
+      case Failure(e) =>
+        try {
+          provider.rollback(ctx.cause(e))
+          result
+        } catch {
+          case NonFatal(re) =>
+            re.addSuppressed(e)
+            Failure(re)
+        }
     }
 
-    def onError(error: Throwable, provider: TransactionProvider, ctx: TransactionContext): Try[Any] = {
-      try
-        provider.rollback(ctx.cause(error))
-      catch {
-        case NonFatal(re) =>
-          re.addSuppressed(error)
-          throw re
-      }
-      throw error
+
+  implicit def futureTxBoundary[T](implicit ec: ExecutionContext): TxBoundary[Future[T]] = (result, provider, ctx) => {
+    val p = Promise[T]()
+    result.onComplete {
+      case s@Success(_) =>
+        val r = try {
+          provider.commit(ctx)
+          s
+        } catch {
+          case NonFatal(ce) =>
+            try
+              provider.rollback(ctx.cause(ce))
+            catch {
+              case NonFatal(re) => ce.addSuppressed(re)
+            }
+            Failure(ce)
+        }
+        p.complete(r)
+
+      case f@Failure(e) =>
+        val r = try {
+          provider.rollback(ctx.cause(e))
+          f
+        } catch {
+          case NonFatal(re) =>
+            re.addSuppressed(e)
+            Failure(re)
+        }
+        p.complete(r)
     }
-  }
-
-
-  implicit def futureTxBoundary[T](implicit ec: ExecutionContext): TxBoundary[Future[T]] = new TxBoundary[Future[T]] {
-    def onFinish(result: Future[T], provider: TransactionProvider, ctx: TransactionContext): Future[T] = {
-      val p = Promise[T]()
-      result.onComplete {
-        case s@Success(_) =>
-          val r = try {
-            provider.commit(ctx)
-            s
-          } catch {
-            case NonFatal(ce) =>
-              try
-                provider.rollback(ctx.cause(ce))
-              catch {
-                case NonFatal(re) =>
-                  ce.addSuppressed(re)
-              }
-              Failure(ce)
-          }
-          p.complete(r)
-
-        case f@Failure(e) =>
-          val r = try {
-            provider.rollback(ctx.cause(e))
-            f
-          } catch {
-            case NonFatal(re) =>
-              re.addSuppressed(e)
-              Failure(re)
-          }
-          p.complete(r)
-      }
-      p.future
-    }
-
-    def onError(error: Throwable, provider: TransactionProvider, ctx: TransactionContext): Future[T] = {
-      try
-        provider.rollback(ctx.cause(error))
-      catch {
-        case NonFatal(re) =>
-          re.addSuppressed(error)
-          throw re
-      }
-      throw error
-    }
+    p.future
   }
 
 
