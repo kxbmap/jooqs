@@ -2,7 +2,7 @@ package com.github.kxbmap.jooqs.db
 
 import com.github.kxbmap.jooqs.syntax._
 import org.jooq.{TransactionContext, TransactionProvider}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
 
@@ -115,11 +115,38 @@ sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
 
 
   implicit def futureTxBoundary[T](implicit ec: ExecutionContext): TxBoundary[Future[T]] = new TxBoundary[Future[T]] {
-    def onFinish(result: Future[T], provider: TransactionProvider, ctx: TransactionContext): Future[T] =
-      result.andThen {
-        case Success(_) => provider.commit(ctx)
-        case Failure(e) => provider.rollback(ctx.cause(e))
+    def onFinish(result: Future[T], provider: TransactionProvider, ctx: TransactionContext): Future[T] = {
+      val p = Promise[T]()
+      result.onComplete {
+        case s@Success(_) =>
+          val r = try {
+            provider.commit(ctx)
+            s
+          } catch {
+            case NonFatal(ce) =>
+              try
+                provider.rollback(ctx.cause(ce))
+              catch {
+                case NonFatal(re) =>
+                  ce.addSuppressed(re)
+              }
+              Failure(ce)
+          }
+          p.complete(r)
+
+        case f@Failure(e) =>
+          val r = try {
+            provider.rollback(ctx.cause(e))
+            f
+          } catch {
+            case NonFatal(re) =>
+              re.addSuppressed(e)
+              Failure(re)
+          }
+          p.complete(r)
       }
+      p.future
+    }
 
     def onError(error: Throwable, provider: TransactionProvider, ctx: TransactionContext): Future[T] = {
       try

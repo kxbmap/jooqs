@@ -186,7 +186,12 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
           }
         }
 
-        ignore("should verified with future boundary") {
+        it("should verified with future boundary") {
+          val f = flow { dsl =>
+            dsl.withTransaction { _ => Future.successful(42) }
+          }
+          assert(f.value.exists(_.isFailure))
+          assert(f.value.get.failed.get.getMessage == "commit failed")
         }
 
       }
@@ -235,7 +240,16 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
           assert(e.getSuppressed.exists(_.getMessage == "dummy"))
         }
 
-        ignore("should verified with future boundary") {
+        it("should verified with future boundary") {
+          val f = flow { dsl =>
+            dsl.withTransaction { _ =>
+              Future.failed[Int](new DummyException)
+            }
+          }
+          assert(f.value.exists(_.isFailure))
+          val e = f.value.get.failed.get
+          assert(e.getMessage == "rollback failed")
+          assert(e.getSuppressed.exists(_.getMessage == "dummy"))
         }
 
         describe("with uncaught exception") {
@@ -243,11 +257,11 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
           it("should verified with try boundary") {
             val e = flow { dsl =>
               intercept[DummyRollbackFailedException] {
-              dsl.withTransaction { _ =>
-                throw new DummyException
-                Try(42)
+                dsl.withTransaction { _ =>
+                  throw new DummyException
+                  Try(42)
+                }
               }
-            }
             }
             assert(e.getSuppressed.exists(_.getMessage == "dummy"))
           }
@@ -255,11 +269,11 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
           it("should verified with future boundary") {
             val e = flow { dsl =>
               intercept[DummyRollbackFailedException] {
-              dsl.withTransaction { _ =>
-                throw new DummyException
-                Future.successful(42)
+                dsl.withTransaction { _ =>
+                  throw new DummyException
+                  Future.successful(42)
+                }
               }
-            }
             }
             assert(e.getSuppressed.exists(_.getMessage == "dummy"))
           }
@@ -307,7 +321,14 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
           assert(e.getSuppressed.exists(_.getMessage == "rollback failed"))
         }
 
-        ignore("should verified with future boundary") {
+        it("should verified with future boundary") {
+          val f = flow { dsl =>
+            dsl.withTransaction { _ => Future.successful(42) }
+          }
+          assert(f.value.exists(_.isFailure))
+          val e = f.value.get.failed.get
+          assert(e.getMessage == "commit failed")
+          assert(e.getSuppressed.exists(_.getMessage == "rollback failed"))
         }
 
       }
