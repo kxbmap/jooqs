@@ -37,7 +37,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
 
       import scala.concurrent.ExecutionContext.Implicits.global
 
-      implicit val futureAwait: Future[Int] => Unit = Await.ready(_, Duration.Inf)
+      implicit def futureAwait[T]: Future[T] => Unit = Await.ready(_, Duration.Inf)
 
       describe("flow of commit") {
 
