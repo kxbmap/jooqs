@@ -43,8 +43,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
 
       def verifyFlow[T](tx: DSLContext => T)(
         when: TransactionProvider => Unit = (_: TransactionProvider) => (),
-        verify: TransactionProvider => Unit = (_: TransactionProvider) => ())
-        (implicit await: T => Unit = (_: T) => ()): T = {
+        verify: TransactionProvider => Unit = (_: TransactionProvider) => ())(implicit await: T => Unit): T = {
 
         val dsl = mock[DSLContext](RETURNS_DEEP_STUBS)
         val provider = mock[TransactionProvider]
@@ -317,6 +316,73 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
           val e = f.value.get.failed.get
           assert(e.getMessage == "commit failed")
           assert(e.getSuppressed.exists(_.getMessage == "rollback failed"))
+        }
+
+      }
+
+      //noinspection RemoveRedundantReturn
+      describe("flow of return") {
+
+        def verifyReturnFlow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = verifyFlow(tx)(
+          verify = { provider =>
+            val o = inOrder(provider)
+            o.verify(provider).begin(any())
+            o.verify(provider).commit(any())
+          }
+        )
+
+        it("should verified with exception boundary") {
+          val r = verifyReturnFlow { dsl =>
+            def f: Int = dsl.withTransaction[Int] { _ =>
+              return 42
+            }
+            f
+          }
+          assert(r == 42)
+        }
+
+        it("should verified with try boundary") {
+          val r = verifyReturnFlow { dsl =>
+            def f: Try[Int] = dsl.withTransaction[Try[Int]] { _ =>
+              return Try(42)
+            }
+            f
+          }
+          assert(r.isSuccess)
+        }
+
+        it("should verified with future boundary") {
+          val r = verifyReturnFlow { dsl =>
+            def f: Future[Int] = dsl.withTransaction[Future[Int]] { _ =>
+              return Future.successful(42)
+            }
+            f
+          }
+          assert(r.value.exists(_.isSuccess))
+        }
+
+        describe("with error value") {
+
+          it("should verified with try boundary") {
+            val r = verifyReturnFlow { dsl =>
+              def f: Try[Int] = dsl.withTransaction[Try[Int]] { _ =>
+                return Try { throw new DummyException }
+              }
+              f
+            }
+            assert(r.isFailure)
+          }
+
+          it("should verified with future boundary") {
+            val r = verifyReturnFlow { dsl =>
+              def f: Future[Int] = dsl.withTransaction[Future[Int]] { _ =>
+                return Future.failed(new DummyException)
+              }
+              f
+            }
+            assert(r.value.exists(_.isFailure))
+          }
+
         }
 
       }
