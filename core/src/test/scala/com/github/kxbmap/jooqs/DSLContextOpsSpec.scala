@@ -113,6 +113,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
             dsl.withTransaction { _ => Try[Int] { throw new DummyException } }
           }
           assert(r.isFailure)
+          assert(r.failed.get.getMessage == "dummy")
         }
 
         it("should verified with future boundary") {
@@ -120,6 +121,7 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
             dsl.withTransaction { _ => Future.failed[Int](new DummyException) }
           }
           assert(r.value.exists(_.isFailure))
+          assert(r.value.get.failed.get.getMessage == "dummy")
         }
 
         describe("with uncaught exception") {
@@ -179,11 +181,11 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with try boundary") {
-          flow { dsl =>
-            intercept[DummyCommitFailedException] {
-              dsl.withTransaction { _ => Try(42) }
-            }
+          val t = flow { dsl =>
+            dsl.withTransaction { _ => Try(42) }
           }
+          assert(t.isFailure)
+          assert(t.failed.get.getMessage == "commit failed")
         }
 
         it("should verified with future boundary") {
@@ -228,15 +230,16 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with try boundary") {
-          val e = flow { dsl =>
-            intercept[DummyRollbackFailedException] {
-              dsl.withTransaction { _ =>
-                Try[Int] {
-                  throw new DummyException
-                }
+          val t = flow { dsl =>
+            dsl.withTransaction { _ =>
+              Try[Int] {
+                throw new DummyException
               }
             }
           }
+          assert(t.isFailure)
+          val e = t.failed.get
+          assert(e.getMessage == "rollback failed")
           assert(e.getSuppressed.exists(_.getMessage == "dummy"))
         }
 
@@ -313,11 +316,12 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
         }
 
         it("should verified with try boundary") {
-          val e = flow { dsl =>
-            intercept[DummyCommitFailedException] {
-              dsl.withTransaction { _ => Try(42) }
-            }
+          val t = flow { dsl =>
+            dsl.withTransaction { _ => Try(42) }
           }
+          assert(t.isFailure)
+          val e = t.failed.get
+          assert(e.getMessage == "commit failed")
           assert(e.getSuppressed.exists(_.getMessage == "rollback failed"))
         }
 

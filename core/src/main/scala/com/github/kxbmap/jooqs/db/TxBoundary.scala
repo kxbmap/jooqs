@@ -69,9 +69,10 @@ sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
     def onFinish(result: Try[Any], provider: TransactionProvider, ctx: TransactionContext): Try[Any] = {
       result match {
         case Success(_) =>
-          try
+          try {
             provider.commit(ctx)
-          catch {
+            result
+          } catch {
             case NonFatal(ce) =>
               try
                 provider.rollback(ctx.cause(ce))
@@ -79,35 +80,28 @@ sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
                 case NonFatal(re) =>
                   ce.addSuppressed(re)
               }
-              finally
-                ctx.data(TxBoundary.RollbackCalled, true)
-
-              throw ce
+              Failure(ce)
           }
 
         case Failure(e) =>
-          try
+          try {
             provider.rollback(ctx.cause(e))
-          catch {
+            result
+          } catch {
             case NonFatal(re) =>
               re.addSuppressed(e)
-              throw re
+              Failure(re)
           }
-          finally
-            ctx.data(TxBoundary.RollbackCalled, true)
       }
-      result
     }
 
     def onError(error: Throwable, provider: TransactionProvider, ctx: TransactionContext): Try[Any] = {
-      if (ctx.data(TxBoundary.RollbackCalled) == null) {
-        try
-          provider.rollback(ctx.cause(error))
-        catch {
-          case NonFatal(re) =>
-            re.addSuppressed(error)
-            throw re
-        }
+      try
+        provider.rollback(ctx.cause(error))
+      catch {
+        case NonFatal(re) =>
+          re.addSuppressed(error)
+          throw re
       }
       throw error
     }
