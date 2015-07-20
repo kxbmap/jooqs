@@ -52,10 +52,9 @@ object syntax {
     def withTransaction[T](body: Configuration => T)(implicit boundary: TxBoundary[T]): T = {
       val ctx = new DefaultTransactionContext(self.configuration.derive())
       val provider = ctx.configuration.transactionProvider()
-      try {
+      val result = try {
         provider.begin(ctx)
-        val result = body(ctx.configuration)
-        boundary.onFinish(result, provider, ctx)
+        body(ctx.configuration)
       } catch {
         case e: ControlThrowable =>
           provider.commit(ctx)
@@ -64,7 +63,9 @@ object syntax {
         case e: Throwable =>
           boundary.onError(e, provider, ctx)
       }
+      boundary.onFinish(result, provider, ctx)
     }
+
   }
 
 

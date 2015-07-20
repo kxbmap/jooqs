@@ -17,9 +17,6 @@ object TxBoundary extends TxBoundaryInstances {
 
   def apply[T](implicit b: TxBoundary[T]): TxBoundary[T] = b
 
-  // data keys
-  private[jooqs] final val RollbackCalled = "com.github.kxbmap.jooqs.db.TxBoundary.RollbackCalled"
-
 }
 
 
@@ -40,22 +37,17 @@ sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
             case NonFatal(re) =>
               ce.addSuppressed(re)
           }
-          finally
-            ctx.data(TxBoundary.RollbackCalled, true)
-
           throw ce
       }
     }
 
     def onError(error: Throwable, provider: TransactionProvider, ctx: TransactionContext): Any = {
-      if (ctx.data(TxBoundary.RollbackCalled) == null) {
-        try
-          provider.rollback(ctx.cause(error))
-        catch {
-          case NonFatal(re) =>
-            re.addSuppressed(error)
-            throw re
-        }
+      try
+        provider.rollback(ctx.cause(error))
+      catch {
+        case NonFatal(re) =>
+          re.addSuppressed(error)
+          throw re
       }
       throw error
     }
