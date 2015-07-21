@@ -3,7 +3,7 @@ package com.github.kxbmap.jooqs
 import com.github.kxbmap.jooqs.db.{DBSession, DefaultTransactionContext, TxBoundary}
 import org.jooq._
 import org.jooq.impl.DSL
-import scala.util.control.{NonFatal, ControlThrowable}
+import scala.util.control.{ControlThrowable, NonFatal}
 
 object syntax {
 
@@ -57,7 +57,17 @@ object syntax {
         body(ctx.configuration)
       } catch {
         case e: ControlThrowable =>
-          provider.commit(ctx)
+          try
+            provider.commit(ctx)
+          catch {
+            case NonFatal(ce) =>
+              try
+                provider.rollback(ctx.cause(ce))
+              catch {
+                case NonFatal(re) => ce.addSuppressed(re)
+              }
+              throw ce
+          }
           throw e
 
         case e: Throwable =>

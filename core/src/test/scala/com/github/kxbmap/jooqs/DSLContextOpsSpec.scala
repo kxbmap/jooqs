@@ -387,6 +387,96 @@ class DSLContextOpsSpec extends FunSpec with MockitoSugar {
 
       }
 
+      describe("flow of return then commit to fail") {
+
+        def verifyReturnCommitFailFlow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = verifyFlow(tx)(
+          when = { provider =>
+            when(provider.commit(any())).thenThrow(new DummyCommitFailedException)
+          },
+          verify = { provider =>
+            val o = inOrder(provider)
+            o.verify(provider).begin(any())
+            o.verify(provider).commit(any())
+            o.verify(provider).rollback(any())
+          }
+        )
+
+        it("should verified with exception boundary") {
+          verifyReturnCommitFailFlow { dsl =>
+            def f: Int = dsl.withTransaction[Int] { _ =>
+              return 42
+            }
+            intercept[DummyCommitFailedException](f)
+          }
+        }
+
+        it("should verified with try boundary") {
+          verifyReturnCommitFailFlow { dsl =>
+            def f: Try[Int] = dsl.withTransaction[Try[Int]] { _ =>
+              return Try(42)
+            }
+            intercept[DummyCommitFailedException](f)
+          }
+        }
+
+        it("should verified with future boundary") {
+          verifyReturnCommitFailFlow { dsl =>
+            def f: Future[Int] = dsl.withTransaction[Future[Int]] { _ =>
+              return Future.successful(42)
+            }
+            intercept[DummyCommitFailedException](f)
+          }
+        }
+
+      }
+
+      describe("flow of return then both commit and rollback to fail") {
+
+        def verifyReturnCommitAndRollbackFailFlow[T](tx: DSLContext => T)(implicit await: T => Unit = (_: T) => ()): T = verifyFlow(tx)(
+          when = { provider =>
+            when(provider.commit(any())).thenThrow(new DummyCommitFailedException)
+            when(provider.rollback(any())).thenThrow(new DummyRollbackFailedException)
+          },
+          verify = { provider =>
+            val o = inOrder(provider)
+            o.verify(provider).begin(any())
+            o.verify(provider).commit(any())
+            o.verify(provider).rollback(any())
+          }
+        )
+
+        it("should verified with exception boundary") {
+          val e = verifyReturnCommitAndRollbackFailFlow { dsl =>
+            def f: Int = dsl.withTransaction[Int] { _ =>
+              return 42
+            }
+            intercept[DummyCommitFailedException](f)
+          }
+          assert(e.getSuppressed.exists(_.getMessage == "rollback failed"))
+        }
+
+        it("should verified with try boundary") {
+          val e = verifyReturnCommitAndRollbackFailFlow { dsl =>
+            def f: Try[Int] = dsl.withTransaction[Try[Int]] { _ =>
+              return Try(42)
+            }
+            intercept[DummyCommitFailedException](f)
+          }
+          assert(e.getSuppressed.exists(_.getMessage == "rollback failed"))
+        }
+
+        it("should verified with future boundary") {
+          val e = verifyReturnCommitAndRollbackFailFlow { dsl =>
+            def f: Future[Int] = dsl.withTransaction[Future[Int]] { _ =>
+              return Future.successful(42)
+            }
+            intercept[DummyCommitFailedException](f)
+          }
+          assert(e.getSuppressed.exists(_.getMessage == "rollback failed"))
+        }
+
+      }
+
     }
   }
 
