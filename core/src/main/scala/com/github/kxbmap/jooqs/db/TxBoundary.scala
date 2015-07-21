@@ -16,18 +16,11 @@ object TxBoundary extends TxBoundaryInstances {
 
   def apply[T](implicit b: TxBoundary[T]): TxBoundary[T] = b
 
-}
 
-
-sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
-
-  implicit def exceptionTxBoundary[T]: TxBoundary[T] = _exceptionTxBoundary.asInstanceOf[TxBoundary[T]]
-
-  private[this] final val _exceptionTxBoundary: TxBoundary[Any] = (result, provider, ctx) =>
-    try {
+  private[jooqs] def commit(provider: TransactionProvider, ctx: TransactionContext): Unit =
+    try
       provider.commit(ctx)
-      result
-    } catch {
+    catch {
       case NonFatal(ce) =>
         try
           provider.rollback(ctx.cause(ce))
@@ -37,22 +30,37 @@ sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
         throw ce
     }
 
+  private[jooqs] def rollback(cause: Throwable, provider: TransactionProvider, ctx: TransactionContext): Unit =
+    try
+      provider.rollback(ctx.cause(cause))
+    catch {
+      case NonFatal(re) =>
+        re.addSuppressed(cause)
+        throw re
+    }
+
+}
+
+
+sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
+
+  implicit def exceptionTxBoundary[T]: TxBoundary[T] = _exceptionTxBoundary.asInstanceOf[TxBoundary[T]]
+
+  private[this] final val _exceptionTxBoundary: TxBoundary[Any] = (result, provider, ctx) => {
+    TxBoundary.commit(provider, ctx)
+    result
+  }
+
 
   implicit def tryTxBoundary[T]: TxBoundary[Try[T]] = _tryTxBoundary.asInstanceOf[TxBoundary[Try[T]]]
 
-  private[this] final val _tryTxBoundary: TxBoundary[Try[Any]] = (result, provider, ctx) =>
+  private[this] final val _tryTxBoundary: TxBoundary[Try[Any]] = (result, provider, ctx) => Try {
     result match {
-      case Success(v) => Try(_exceptionTxBoundary.finish(v, provider, ctx))
-      case Failure(e) =>
-        try {
-          provider.rollback(ctx.cause(e))
-          result
-        } catch {
-          case NonFatal(re) =>
-            re.addSuppressed(e)
-            Failure(re)
-        }
+      case Success(_) => TxBoundary.commit(provider, ctx)
+      case Failure(e) => TxBoundary.rollback(e, provider, ctx)
     }
+    result
+  }.flatten
 
 
   implicit def futureTxBoundary[T](implicit ec: ExecutionContext): TxBoundary[Future[T]] = (result, provider, ctx) => {
