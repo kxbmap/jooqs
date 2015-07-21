@@ -1,13 +1,13 @@
 package com.github.kxbmap.jooqs
 
-import com.github.kxbmap.jooqs.db.{DBSession, DefaultTransactionContext, TxBoundary}
+import com.github.kxbmap.jooqs.impl.DefaultTransactionContext
 import org.jooq._
 import org.jooq.impl.DSL
 import scala.util.control.ControlThrowable
 
 object syntax {
 
-  def dsl(implicit session: DBSession): DSLContext = session.dslContext
+  def dsl(implicit session: DBSession): DSLContext = session.dsl
 
 
   implicit class PrimitiveTypeOps[T](private val self: T) extends AnyVal {

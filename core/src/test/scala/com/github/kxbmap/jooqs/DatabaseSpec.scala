@@ -1,4 +1,4 @@
-package com.github.kxbmap.jooqs.db
+package com.github.kxbmap.jooqs
 
 import com.github.kxbmap.jooqs.syntax._
 import org.jooq.impl.{DSL, SQLDataType}

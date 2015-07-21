@@ -1,4 +1,4 @@
-package com.github.kxbmap.jooqs.db
+package com.github.kxbmap.jooqs.impl
 
 import org.jooq.ConnectionProvider
 import org.mockito.Mockito._

@@ -1,15 +1,15 @@
-package com.github.kxbmap.jooqs.db
+package com.github.kxbmap.jooqs
 
-import com.github.kxbmap.jooqs.syntax._
+import com.github.kxbmap.jooqs.impl.DefaultDatabase
 import java.sql.Connection
 import java.util.Properties
 import javax.sql.DataSource
-import org.jooq._
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
+import org.jooq.{ConnectionProvider, DSLContext, SQLDialect}
 import scala.util.control.NonFatal
 
-trait Database extends Scope {
+trait Database extends SimpleScope {
 
   def withTransaction[T: TxBoundary](block: TxDBSession => T): T
 
@@ -18,37 +18,6 @@ trait Database extends Scope {
   def getSession(autoCommit: Boolean = true): UnmanagedDBSession
 
   def shutdown(): Unit
-}
-
-private[db] class DefaultDatabase(dsl: DSLContext) extends Database {
-
-  val configuration: Configuration = dsl.configuration()
-
-  def withTransaction[T: TxBoundary](block: TxDBSession => T): T =
-    dsl.withTransaction { config =>
-      block(new DefaultTxDBSession(config))
-    }
-
-  def withSession[T](block: DBSession => T): T = {
-    val session = getSession(autoCommit = true)
-    try
-      block(session)
-    finally
-      session.close()
-  }
-
-  def getSession(autoCommit: Boolean = true): UnmanagedDBSession =
-    new DefaultUnmanagedDBSession(getConnection(autoCommit), configuration)
-
-  private def getConnection(autoCommit: Boolean = true): Connection = {
-    val conn = new ProvidedConnection(configuration.connectionProvider())
-    if (autoCommit != conn.getAutoCommit) {
-      conn.setAutoCommit(autoCommit)
-    }
-    conn
-  }
-
-  def shutdown(): Unit = {}
 }
 
 object Database {

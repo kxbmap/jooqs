@@ -1,6 +1,6 @@
 package com.github.kxbmap.jooqs.play
 
-import com.github.kxbmap.jooqs.db.Database
+import com.github.kxbmap.jooqs.Database
 import org.jooq.tools.jdbc.JDBCUtils
 import play.api.db.DBApi
 

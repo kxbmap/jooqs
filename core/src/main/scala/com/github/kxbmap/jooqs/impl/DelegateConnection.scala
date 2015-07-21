@@ -1,4 +1,4 @@
-package com.github.kxbmap.jooqs.db
+package com.github.kxbmap.jooqs.impl
 
 import java.sql.{Array => SqlArray, _}
 import java.util.Properties

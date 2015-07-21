@@ -1,4 +1,4 @@
-package com.github.kxbmap.jooqs.db
+package com.github.kxbmap.jooqs
 
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import org.jooq.SQLDialect

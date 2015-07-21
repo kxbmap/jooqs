@@ -1,4 +1,4 @@
-package com.github.kxbmap.jooqs.db
+package com.github.kxbmap.jooqs.impl
 
 import java.sql.ResultSet._
 import java.sql.{Connection, Statement}

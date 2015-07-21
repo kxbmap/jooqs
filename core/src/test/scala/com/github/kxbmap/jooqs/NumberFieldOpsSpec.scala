@@ -1,6 +1,6 @@
 package com.github.kxbmap.jooqs
 
-import org.jooq.impl.{SQLDataType, DSL}
+import org.jooq.impl.{DSL, SQLDataType}
 import org.scalatest.FunSpec
 
 class NumberFieldOpsSpec extends FunSpec {

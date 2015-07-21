@@ -1,8 +1,9 @@
-package com.github.kxbmap.jooqs.db
+package com.github.kxbmap.jooqs.impl
 
+import com.github.kxbmap.jooqs.SimpleScope
 import org.jooq.{Configuration, Transaction, TransactionContext}
 
-class DefaultTransactionContext(val configuration: Configuration) extends TransactionContext with Scope {
+class DefaultTransactionContext(val configuration: Configuration) extends TransactionContext with SimpleScope {
 
   override lazy val data: java.util.Map[AnyRef, AnyRef] = new java.util.HashMap()
 

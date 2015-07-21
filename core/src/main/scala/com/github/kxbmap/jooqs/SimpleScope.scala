@@ -1,9 +1,9 @@
-package com.github.kxbmap.jooqs.db
+package com.github.kxbmap.jooqs
 
 import org.jooq.conf.Settings
-import org.jooq.{Configuration, SQLDialect}
+import org.jooq.{Configuration, SQLDialect, Scope}
 
-trait Scope extends org.jooq.Scope {
+trait SimpleScope extends Scope {
 
   def configuration: Configuration
 

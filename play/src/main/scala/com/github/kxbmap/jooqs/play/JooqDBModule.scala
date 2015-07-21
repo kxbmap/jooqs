@@ -1,6 +1,6 @@
 package com.github.kxbmap.jooqs.play
 
-import com.github.kxbmap.jooqs.db.Database
+import com.github.kxbmap.jooqs.Database
 import javax.inject.{Inject, Provider, Singleton}
 import play.api.db.DBApi
 import play.api.inject.{ApplicationLifecycle, Binding, BindingKey, Module}
