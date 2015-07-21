@@ -401,8 +401,6 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
               .values(2L, "Bob")
               .execute()
 
-            assert(fetchNames() == Nil)
-
             s.commit()
           } finally {
             s.close()

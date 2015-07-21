@@ -1,23 +1,20 @@
 package com.github.kxbmap.jooqs
 
-import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import org.jooq.SQLDialect
+import java.sql.DriverManager
 import org.scalatest.{BeforeAndAfterAll, Suite}
 
 trait InMemoryTestDB extends BeforeAndAfterAll {
   this: Suite =>
 
-  lazy val db = Database(dataSource, SQLDialect.H2)
+  lazy val db = Database(connection)
 
-  private lazy val dataSource = {
-    val config = new HikariConfig()
-    config.setDataSourceClassName("org.h2.jdbcx.JdbcDataSource")
-    config.addDataSourceProperty("URL", s"jdbc:h2:mem:${getClass.getName}")
-    new HikariDataSource(config)
+  private lazy val connection = {
+    Class.forName("org.h2.Driver")
+    DriverManager.getConnection(s"jdbc:h2:mem:${getClass.getName}")
   }
 
   override protected def afterAll(): Unit = {
-    dataSource.close()
+    connection.close()
   }
 
 }

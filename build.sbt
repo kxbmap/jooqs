@@ -26,7 +26,6 @@ lazy val core = project.settings(
   libraryDependencies ++= Seq(
     "org.jooq" % "jooq" % "3.6.2",
     "com.h2database" % "h2" % "1.4.187" % "test",
-    "com.zaxxer" % "HikariCP" % "2.3.9" % "test",
     "org.slf4j" % "slf4j-simple" % "1.7.12" % "test"
   ) ++ testDependencies
 )
