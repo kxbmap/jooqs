@@ -1,11 +1,12 @@
-package com.github.kxbmap.jooqs
+package com.github.kxbmap.jooqs.syntax
 
+import com.github.kxbmap.jooqs._
 import com.github.kxbmap.jooqs.impl.DefaultTransactionContext
 import org.jooq._
 import org.jooq.impl.DSL
 import scala.util.control.ControlThrowable
 
-package object syntax {
+object `package` {
 
   def dsl(implicit session: DBSession): DSLContext = session.dsl
 
