@@ -1,5 +1,6 @@
-package com.github.kxbmap.jooqs
+package com.github.kxbmap.jooqs.syntax
 
+import com.github.kxbmap.jooqs.DisableAutoUnboxing
 import org.jooq.Record
 import org.jooq.impl.DSL
 import org.mockito.Mockito._
@@ -8,8 +9,6 @@ import org.scalatest.mock.MockitoSugar
 
 //noinspection OptionEqualsSome,EmptyCheck
 class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {
-
-  import syntax._
 
   describe("RecordOps") {
     describe("get") {

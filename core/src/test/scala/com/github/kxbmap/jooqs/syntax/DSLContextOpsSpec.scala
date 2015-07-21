@@ -1,4 +1,4 @@
-package com.github.kxbmap.jooqs
+package com.github.kxbmap.jooqs.syntax
 
 import org.jooq._
 import org.jooq.impl.DSL
@@ -13,8 +13,6 @@ import scala.util.Try
 import scala.util.control.NoStackTrace
 
 class DSLContextOpsSpec extends FunSpec with MockitoSugar {
-
-  import syntax._
 
   describe("DSLContextOps") {
 

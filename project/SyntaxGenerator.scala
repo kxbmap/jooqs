@@ -3,8 +3,7 @@ import sbt.{File, IO, Logger}
 
 object SyntaxGenerator {
 
-  val pkg = "com.github.kxbmap.jooqs"
-  val obj = "syntax"
+  val pkg = "com.github.kxbmap.jooqs.syntax".split('.')
 
   lazy val classes = Seq(
     ConditionOpsClass,
@@ -15,7 +14,7 @@ object SyntaxGenerator {
     (1 to 22).map(new TupleNOpsClass(_))
 
   def apply(scalaSource: File, log: Logger): Unit = {
-    val file = pkg.split('.').foldLeft(scalaSource)(_ / _) / s"$obj.scala"
+    val file = pkg.foldLeft(scalaSource)(_ / _) / "package.scala"
     if (file.exists()) {
       val old = IO.read(file)
       val updated = updateSource(old)
@@ -33,12 +32,12 @@ object SyntaxGenerator {
 
 
   def renderAll: String =
-    s"""package $pkg
+    s"""package ${pkg.init.mkString(".")}
        |
        |import org.jooq._
        |import org.jooq.impl.DSL
        |
-       |object $obj {
+       |package object ${pkg.last} {
        |
        |  //// generation:start
        |

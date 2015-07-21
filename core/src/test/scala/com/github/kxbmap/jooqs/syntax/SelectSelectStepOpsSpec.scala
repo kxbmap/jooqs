@@ -1,12 +1,10 @@
-package com.github.kxbmap.jooqs
+package com.github.kxbmap.jooqs.syntax
 
 import org.jooq.impl.DSL
 import org.jooq.{Field, SQLDialect}
 import org.scalatest.FunSpec
 
 class SelectSelectStepOpsSpec extends FunSpec {
-
-  import syntax._
 
   val dsl = DSL.using(SQLDialect.DEFAULT)
 

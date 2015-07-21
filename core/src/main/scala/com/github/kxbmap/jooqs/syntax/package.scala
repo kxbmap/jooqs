@@ -5,7 +5,7 @@ import org.jooq._
 import org.jooq.impl.DSL
 import scala.util.control.ControlThrowable
 
-object syntax {
+package object syntax {
 
   def dsl(implicit session: DBSession): DSLContext = session.dsl
 

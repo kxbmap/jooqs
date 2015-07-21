@@ -1,11 +1,9 @@
-package com.github.kxbmap.jooqs
+package com.github.kxbmap.jooqs.syntax
 
 import org.jooq.impl.DSL
 import org.scalatest.FunSpec
 
 class QueryPartOpsSpec extends FunSpec {
-
-  import syntax._
 
   describe("QueryPartOps") {
     describe("map") {

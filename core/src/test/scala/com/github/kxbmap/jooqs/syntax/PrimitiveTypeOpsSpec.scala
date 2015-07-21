@@ -1,11 +1,10 @@
-package com.github.kxbmap.jooqs
+package com.github.kxbmap.jooqs.syntax
 
+import com.github.kxbmap.jooqs.DisableAutoboxing
 import org.scalatest.FunSpec
 
 //noinspection OptionEqualsSome,EmptyCheck
 class PrimitiveTypeOpsSpec extends FunSpec with DisableAutoboxing {
-
-  import syntax._
 
   describe("PrimitiveTypeOps") {
     describe("box") {

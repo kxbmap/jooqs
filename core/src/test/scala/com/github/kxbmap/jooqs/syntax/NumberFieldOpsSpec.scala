@@ -1,11 +1,9 @@
-package com.github.kxbmap.jooqs
+package com.github.kxbmap.jooqs.syntax
 
 import org.jooq.impl.{DSL, SQLDataType}
 import org.scalatest.FunSpec
 
 class NumberFieldOpsSpec extends FunSpec {
-
-  import syntax._
 
   describe("NumberFieldOps") {
     describe("unary operator '-'") {

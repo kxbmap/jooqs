@@ -1,12 +1,10 @@
-package com.github.kxbmap.jooqs
+package com.github.kxbmap.jooqs.syntax
 
 import java.sql.DriverManager
 import org.jooq.impl.DSL
 import org.scalatest.{BeforeAndAfterAll, FunSpec}
 
 class RecordNOpsSpec extends FunSpec with BeforeAndAfterAll {
-
-  import syntax._
 
   val conn = {
     Class.forName("org.h2.Driver")
