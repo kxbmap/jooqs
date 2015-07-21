@@ -1,6 +1,5 @@
 package com.github.kxbmap.jooqs
 
-import com.github.kxbmap.jooqs.syntax._
 import org.jooq.{TransactionContext, TransactionProvider}
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.util.control.NonFatal
