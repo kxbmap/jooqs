@@ -19,7 +19,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
   val NAME = DSL.field("NAME", SQLDataType.VARCHAR.length(255).nullable(false))
 
   override protected def beforeAll(): Unit = {
-    db.withTransaction { implicit s =>
+    db.withTransaction { implicit session =>
       dsl.createTable(USER)
         .column(ID, ID.getDataType)
         .column(NAME, NAME.getDataType)
@@ -28,13 +28,13 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
   }
 
   after {
-    db.withTransaction { implicit s =>
+    db.withTransaction { implicit session =>
       dsl.deleteFrom(USER).execute()
     }
   }
 
 
-  def fetchNames(): List[String] = db.withTransaction { implicit s =>
+  def fetchNames(): List[String] = db.withTransaction { implicit session =>
     dsl.selectFrom(USER).fetch(NAME).toList
   }
 
@@ -43,7 +43,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
     describe("withTransaction") {
       describe("provide transactional session") {
         it("commit after block") {
-          db.withTransaction { implicit s =>
+          db.withTransaction { implicit session =>
             dsl.insertInto(USER, ID, NAME)
               .values(1L, "Alice")
               .execute()
@@ -53,7 +53,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
         it("rollback when exception raised") {
           intercept[DummyException] {
-            db.withTransaction[Int] { implicit s =>
+            db.withTransaction[Int] { implicit session =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
                 .execute()
@@ -68,7 +68,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
         it("commit when `return`") {
           def method(): Unit = {
-            db.withTransaction[Unit] { implicit s =>
+            db.withTransaction[Unit] { implicit session =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
                 .execute()
@@ -81,7 +81,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
         describe("with Try boundary") {
           it("commit if success") {
-            db.withTransaction { implicit s =>
+            db.withTransaction { implicit session =>
               Try {
                 dsl.insertInto(USER, ID, NAME)
                   .values(1L, "Alice")
@@ -92,7 +92,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
           }
 
           it("rollback if failure") {
-            db.withTransaction { implicit s =>
+            db.withTransaction { implicit session =>
               Try[Int] {
                 dsl.insertInto(USER, ID, NAME)
                   .values(1L, "Alice")
@@ -110,7 +110,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
           import scala.concurrent.ExecutionContext.Implicits.global
 
           it("commit if success") {
-            val f = db.withTransaction { implicit s =>
+            val f = db.withTransaction { implicit session =>
               Future {
                 dsl.insertInto(USER, ID, NAME)
                   .values(1L, "Alice")
@@ -123,7 +123,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
           }
 
           it("rollback if failure") {
-            val f = db.withTransaction { implicit s =>
+            val f = db.withTransaction { implicit session =>
               Future[Int] {
                 dsl.insertInto(USER, ID, NAME)
                   .values(1L, "Alice")
@@ -141,12 +141,12 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
       describe("with savepoint") {
         it("commit savepoint") {
-          db.withTransaction { implicit s =>
+          db.withTransaction { implicit session =>
             dsl.insertInto(USER, ID, NAME)
               .values(1L, "Alice")
               .execute()
 
-            s.savepoint {
+            savepoint {
               dsl.insertInto(USER, ID, NAME)
                 .values(2L, "Bob")
                 .execute()
@@ -160,13 +160,13 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
         }
 
         it("rollback savepoint") {
-          db.withTransaction { implicit s =>
+          db.withTransaction { implicit session =>
             dsl.insertInto(USER, ID, NAME)
               .values(1L, "Alice")
               .execute()
 
             try
-              s.savepoint[Int] {
+              savepoint[Int] {
                 dsl.insertInto(USER, ID, NAME)
                   .values(2L, "Bob")
                   .execute()
@@ -186,12 +186,12 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
         it("rollback transaction") {
           intercept[DummyException] {
-            db.withTransaction { implicit s =>
+            db.withTransaction { implicit session =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
                 .execute()
 
-              s.savepoint[Int] {
+              savepoint[Int] {
                 dsl.insertInto(USER, ID, NAME)
                   .values(2L, "Bob")
                   .execute()
@@ -208,18 +208,18 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
         }
 
         it("nested") {
-          db.withTransaction { implicit s =>
+          db.withTransaction { implicit session =>
             dsl.insertInto(USER, ID, NAME)
               .values(1L, "Alice")
               .execute()
 
-            s.savepoint {
+            savepoint {
               dsl.insertInto(USER, ID, NAME)
                 .values(2L, "Bob")
                 .execute()
 
               try
-                s.savepoint[Int] {
+                savepoint[Int] {
                   dsl.insertInto(USER, ID, NAME)
                     .values(3L, "Charlie")
                     .execute()
@@ -243,12 +243,12 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
         describe("with Try boundary") {
           it("commit savepoint if success") {
-            db.withTransaction { implicit s =>
+            db.withTransaction { implicit session =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
                 .execute()
 
-              s.savepoint {
+              savepoint {
                 Try {
                   dsl.insertInto(USER, ID, NAME)
                     .values(2L, "Bob")
@@ -264,12 +264,12 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
           }
 
           it("rollback savepoint if failure") {
-            db.withTransaction { implicit s =>
+            db.withTransaction { implicit session =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
                 .execute()
 
-              s.savepoint {
+              savepoint {
                 Try[Int] {
                   dsl.insertInto(USER, ID, NAME)
                     .values(2L, "Bob")
@@ -292,12 +292,12 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
           import scala.concurrent.ExecutionContext.Implicits.global
 
           it("commit savepoint if success") {
-            val f = db.withTransaction { implicit s =>
+            val f = db.withTransaction { implicit session =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
                 .execute()
 
-              s.savepoint {
+              savepoint {
                 Future {
                   dsl.insertInto(USER, ID, NAME)
                     .values(2L, "Bob")
@@ -318,12 +318,12 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
           }
 
           it("rollback savepoint if failure") {
-            val f = db.withTransaction { implicit s =>
+            val f = db.withTransaction { implicit session =>
               dsl.insertInto(USER, ID, NAME)
                 .values(1L, "Alice")
                 .execute()
 
-              s.savepoint {
+              savepoint {
                 Future[Int] {
                   dsl.insertInto(USER, ID, NAME)
                     .values(2L, "Bob")
@@ -351,7 +351,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
     describe("withSession") {
       it("commit each statement") {
         intercept[DummyException] {
-          db.withSession { implicit s =>
+          db.withSession { implicit session =>
             dsl.insertInto(USER, ID, NAME)
               .values(1L, "Alice")
               .execute()

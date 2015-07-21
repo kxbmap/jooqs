@@ -9,6 +9,8 @@ package object syntax {
 
   def dsl(implicit session: DBSession): DSLContext = session.dsl
 
+  def savepoint[T: TxBoundary](block: => T)(implicit session: TxDBSession): T = session.savepoint(block)
+
 
   implicit class PrimitiveTypeOps[T](private val self: T) extends AnyVal {
     def box[U](implicit b: Box[T, U]): U = b.box(self)
