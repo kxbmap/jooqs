@@ -54,13 +54,16 @@ sealed trait TxBoundaryInstances extends LowPriorityTxBoundaryInstances {
 
   implicit def tryTxBoundary[T]: TxBoundary[Try[T]] = _tryTxBoundary.asInstanceOf[TxBoundary[Try[T]]]
 
-  private[this] final val _tryTxBoundary: TxBoundary[Try[Any]] = (result, provider, ctx) => Try {
-    result match {
-      case Success(_) => TxBoundary.commit(provider, ctx)
-      case Failure(e) => TxBoundary.rollback(e, provider, ctx)
+  private[this] final val _tryTxBoundary: TxBoundary[Try[Any]] = (result, provider, ctx) =>
+    try {
+      result match {
+        case Success(_) => TxBoundary.commit(provider, ctx)
+        case Failure(e) => TxBoundary.rollback(e, provider, ctx)
+      }
+      result
+    } catch {
+      case NonFatal(e) => Failure(e)
     }
-    result
-  }.flatten
 
 
   implicit def futureTxBoundary[T](implicit ec: ExecutionContext): TxBoundary[Future[T]] = (result, provider, ctx) => {
