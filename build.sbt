@@ -19,6 +19,7 @@ lazy val generateSyntax = taskKey[Unit]("generate syntax object")
 
 lazy val core = project.settings(
   name := "jooqs-core",
+  crossScalaVersions += "2.12.0-M2",
   generateSyntax := {
     SyntaxGenerator((scalaSource in Compile).value, streams.value.log)
   },
@@ -27,7 +28,8 @@ lazy val core = project.settings(
     "org.jooq" % "jooq" % "3.6.2",
     "com.h2database" % "h2" % "1.4.187" % "test",
     "org.slf4j" % "slf4j-simple" % "1.7.12" % "test"
-  ) ++ testDependencies
+  ),
+  libraryDependencies <++= testDependencies
 )
 
 lazy val play = project.settings(
@@ -38,8 +40,14 @@ lazy val play = project.settings(
   )
 ).dependsOn(core)
 
-lazy val testDependencies = Seq(
-  "org.scalatest" %% "scalatest" % "2.2.5" % "test",
-  "org.scalacheck" %% "scalacheck" % "1.12.4" % "test",
-  "org.mockito" % "mockito-core" % "2.0.26-beta" % "test"
-)
+lazy val testDependencies = Def.setting {
+  val stv = CrossVersion.partialVersion(scalaVersion.value) match {
+    case Some((2, 12)) => "2.2.5-M2"
+    case _             => "2.2.5"
+  }
+  Seq(
+    "org.scalatest" %% "scalatest" % stv % "test",
+    "org.scalacheck" %% "scalacheck" % "1.12.4" % "test",
+    "org.mockito" % "mockito-core" % "2.0.26-beta" % "test"
+  )
+}
