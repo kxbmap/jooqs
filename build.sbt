@@ -37,7 +37,8 @@ lazy val play = project.settings(
   libraryDependencies ++= Seq(
     "com.typesafe.play" %% "play-jdbc" % "2.4.2",
     "com.typesafe.play" %% "play-specs2" % "2.4.2" % "test"
-  )
+  ),
+  resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
 ).dependsOn(core)
 
 lazy val testDependencies = Def.setting {
