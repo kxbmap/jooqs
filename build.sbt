@@ -35,7 +35,8 @@ lazy val core = project.settings(
 lazy val play = project.settings(
   name := "jooqs-play",
   libraryDependencies ++= Seq(
-    "com.typesafe.play" %% "play-jdbc" % "2.4.2",
+    "com.typesafe.play" %% "play-jdbc-api" % "2.4.2",
+    "com.typesafe.play" %% "play-jdbc" % "2.4.2" % "test",
     "com.typesafe.play" %% "play-specs2" % "2.4.2" % "test"
   ),
   resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
