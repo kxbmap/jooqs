@@ -44,7 +44,7 @@ object Database {
 
   def apply(connectionProvider: ConnectionProvider, dialect: SQLDialect, settings: Settings): Database = Database(DSL.using(connectionProvider, dialect, settings))
 
-  def apply(ctx: DSLContext): Database = new DefaultDatabase(ctx)
+  private def apply(ctx: DSLContext): Database = new DefaultDatabase(ctx)
 
   private def closeOnShutdown(ctx: DSLContext): Database = new DefaultDatabase(ctx) with CloseOnShutdown
 
