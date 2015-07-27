@@ -1,0 +1,28 @@
+sudo: false
+
+language: scala
+jdk:
+  - oraclejdk8
+scala:
+  - 2.11.7
+  - 2.12.0-M2
+env:
+  - SBT_PROJECT=core
+  - SBT_PROJECT=play
+
+matrix:
+  exclude:
+    - scala: 2.12.0-M2
+      env: SBT_PROJECT=play
+
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION $SBT_PROJECT/test
+
+  # Tricks to avoid unnecessary cache updates
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/boot
