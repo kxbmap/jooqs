@@ -73,6 +73,21 @@ object `package` {
   }
 
 
+  implicit class SQLInterpolation(private val sc: StringContext) extends AnyVal {
+
+    def sql(args: Any*): SQL = {
+      sc.checkLengths(args)
+      val pi = sc.parts.iterator
+      val sb = new StringBuilder(pi.next())
+      while (pi.hasNext) {
+        sb += '?'
+        sb ++= pi.next()
+      }
+      DSL.sql(sb.result(), args.asInstanceOf[Seq[AnyRef]]: _*)
+    }
+  }
+
+
   //// generation:start
 
   //// start:ConditionOps
