@@ -50,6 +50,6 @@ lazy val testDependencies = Def.setting {
   Seq(
     "org.scalatest" %% "scalatest" % stv % "test",
     "org.scalacheck" %% "scalacheck" % "1.12.4" % "test",
-    "org.mockito" % "mockito-core" % "2.0.26-beta" % "test"
+    "org.mockito" % "mockito-core" % "2.0.31-beta" % "test"
   )
 }
