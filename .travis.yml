@@ -8,6 +8,7 @@ scala:
   - 2.12.0-M2
 env:
   - SBT_PROJECT=core
+  - SBT_PROJECT=config
   - SBT_PROJECT=play
 
 matrix:
