@@ -10,10 +10,7 @@ class DefaultJooqDBApi(dbApi: DBApi) extends JooqDBApi {
     dbApi.databases().map { p =>
       // TODO load jOOQ Settings per database
       // val settings = SettingsTools.defaultSettings()
-      val db = Database(p.dataSource, JDBCUtils.dialect(p.url))
-      db.data(JooqDBApi.Name, p.name)
-      db.data(JooqDBApi.URL, p.url)
-      p.name -> db
+      p.name -> Database(p.dataSource, JDBCUtils.dialect(p.url))
     }(collection.breakOut)
 
   lazy val databases: Seq[Database] =

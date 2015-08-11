@@ -70,14 +70,22 @@ class JooqDBModuleSpec extends PlaySpecification {
 
 }
 
-trait Data {
+trait Component {
+
   def db: Database
-  def name: String = db.data(JooqDBApi.Name).toString
-  def url: String = db.data(JooqDBApi.URL).toString
+
+  def url: String = {
+    val con = db.configuration.connectionProvider().acquire()
+    try
+      con.getMetaData.getURL
+    finally
+      con.close()
+  }
+
 }
 
-case class DefaultComponent @Inject() (db: Database) extends Data
+case class DefaultComponent @Inject() (db: Database) extends Component
 
-case class NamedDefaultComponent @Inject() (@NamedDatabase("default") db: Database) extends Data
+case class NamedDefaultComponent @Inject() (@NamedDatabase("default") db: Database) extends Component
 
-case class NamedOtherComponent @Inject() (@NamedDatabase("other") db: Database) extends Data
+case class NamedOtherComponent @Inject() (@NamedDatabase("other") db: Database) extends Component

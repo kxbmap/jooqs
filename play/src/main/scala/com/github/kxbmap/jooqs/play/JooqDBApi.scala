@@ -22,11 +22,3 @@ trait JooqDBApi {
   def shutdown(): Unit
 
 }
-
-object JooqDBApi {
-
-  // data keys
-  final val Name = "com.github.kxbmap.jooqs.play.dbName"
-  final val URL = "com.github.kxbmap.jooqs.play.dbURL"
-
-}
