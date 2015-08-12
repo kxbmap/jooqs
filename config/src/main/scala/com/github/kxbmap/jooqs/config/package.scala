@@ -16,7 +16,7 @@ package object config {
   implicit lazy val mappedSchemaConfigs: Configs[MappedSchema] =
     Configs.bean[MappedSchema]
 
-  implicit lazy val mappedTable: Configs[MappedTable] =
+  implicit lazy val mappedTableConfigs: Configs[MappedTable] =
     Configs.bean[MappedTable]
 
 }
