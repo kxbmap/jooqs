@@ -37,18 +37,21 @@ final class JooqDBModule extends Module {
  * jOOQ database components (for compile-time injection).
  */
 trait JooqDBComponent {
+
+  def configuration: Configuration
+
   def dbApi: DBApi
 
   def applicationLifecycle: ApplicationLifecycle
 
-  lazy val jooqDBApi: JooqDBApi = new JooqDBApiProvider(dbApi, applicationLifecycle).get
+  lazy val jooqDBApi: JooqDBApi = new JooqDBApiProvider(configuration, dbApi, applicationLifecycle).get
 }
 
 
 @Singleton
-class JooqDBApiProvider @Inject()(dbApi: DBApi, lifecycle: ApplicationLifecycle) extends Provider[JooqDBApi] {
+class JooqDBApiProvider @Inject()(configuration: Configuration, dbApi: DBApi, lifecycle: ApplicationLifecycle) extends Provider[JooqDBApi] {
   lazy val get: JooqDBApi = {
-    val jooq = new DefaultJooqDBApi(dbApi)
+    val jooq = new DefaultJooqDBApi(configuration.underlying, dbApi)
     lifecycle.addStopHook(() => Future.successful(jooq.shutdown()))
     jooq
   }

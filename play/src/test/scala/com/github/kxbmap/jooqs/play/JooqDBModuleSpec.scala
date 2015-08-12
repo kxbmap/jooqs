@@ -2,6 +2,7 @@ package com.github.kxbmap.jooqs.play
 
 import com.github.kxbmap.jooqs.Database
 import javax.inject.Inject
+import org.jooq.conf.RenderKeywordStyle
 import play.api.test._
 
 class JooqDBModuleSpec extends PlaySpecification {
@@ -64,6 +65,19 @@ class JooqDBModuleSpec extends PlaySpecification {
       app.injector.instanceOf[JooqDBApi].databases must have size 1
       app.injector.instanceOf[DefaultComponent].url must_== "jdbc:h2:mem:default"
       app.injector.instanceOf[NamedDefaultComponent].url must_== "jdbc:h2:mem:default"
+    }
+
+    "allow jOOQ Settings to be configured" in new WithApplication(FakeApplication(
+      additionalConfiguration = Map(
+        "db.default.driver" -> "org.h2.Driver",
+        "db.default.url" -> "jdbc:h2:mem:default",
+        "db.default.jooq.settings.renderSchema" -> false,
+        "db.default.jooq.settings.render-keyword-style" -> "LOWER"
+      )
+    )) {
+      val s = app.injector.instanceOf[DefaultComponent].db.settings
+      s.isRenderSchema must_== false
+      s.getRenderKeywordStyle must_== RenderKeywordStyle.LOWER
     }
 
   }
