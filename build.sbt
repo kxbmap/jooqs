@@ -6,6 +6,7 @@ disablePublishSettings
 lazy val jooqVersion = settingKey[String]("jOOQ version")
 lazy val playVersion = settingKey[String]("Play framework version")
 lazy val scalaTestVersion = settingKey[String]("ScalaTest version")
+lazy val configsVersion = settingKey[String]("configs version")
 
 lazy val generateSyntax = taskKey[Unit]("generate syntax object")
 
@@ -15,6 +16,7 @@ lazy val commonSettings = Seq[Setting[_]](
   organization := "com.github.kxbmap",
   scalaVersion := "2.11.7",
   jooqVersion := "3.6.2",
+  configsVersion := "0.3.0-SNAPSHOT",
   scalaTestVersion := (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 12)) => "2.2.5-M2"
     case _             => "2.2.5"
@@ -67,7 +69,8 @@ lazy val config = project.settings(
   scalapropsVersion := "0.1.12",
   libraryDependencies ++= Seq(
     "org.jooq" % "jooq" % jooqVersion.value,
-    "com.github.kxbmap" %% "configs" % "0.3.0-SNAPSHOT" % "compile;provided->provided"
+    "com.github.kxbmap" %% "configs" % configsVersion.value,
+    "com.github.kxbmap" %% "configs-macro" % configsVersion.value % "provided"
   ),
   resolvers += Resolver.sonatypeRepo("snapshots")
 )
