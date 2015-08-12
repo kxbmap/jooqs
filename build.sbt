@@ -63,7 +63,8 @@ lazy val config = project.settings(
   name := "jooqs-config",
   commonSettings,
   crossVersionSettings,
-  scalaTestSettings,
+  scalapropsSettings,
+  scalapropsVersion := "0.1.12",
   libraryDependencies ++= Seq(
     "org.jooq" % "jooq" % jooqVersion.value,
     "com.github.kxbmap" %% "configs" % "0.3.0-SNAPSHOT" % "compile;provided->provided"
