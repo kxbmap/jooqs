@@ -1,5 +1,6 @@
 package com.github.kxbmap.jooqs
 
+import com.github.kxbmap.configs.simple._
 import com.github.kxbmap.configs.Configs
 import org.jooq.conf.{MappedSchema, MappedTable, RenderMapping, Settings, SettingsTools}
 
