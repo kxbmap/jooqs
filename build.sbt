@@ -56,7 +56,7 @@ lazy val core = project.settings(
   compile in Compile <<= (compile in Compile).dependsOn(generateSyntax),
   libraryDependencies ++= Seq(
     "org.jooq" % "jooq" % jooqVersion.value,
-    "com.h2database" % "h2" % "1.4.187" % "test",
+    "com.h2database" % "h2" % "1.4.188" % "test",
     "org.slf4j" % "slf4j-simple" % "1.7.12" % "test"
   )
 )
@@ -66,7 +66,7 @@ lazy val config = project.settings(
   commonSettings,
   crossVersionSettings,
   scalapropsSettings,
-  scalapropsVersion := "0.1.12",
+  scalapropsVersion := "0.1.13",
   libraryDependencies ++= Seq(
     "org.jooq" % "jooq" % jooqVersion.value,
     "com.github.kxbmap" %% "configs" % configsVersion.value,
