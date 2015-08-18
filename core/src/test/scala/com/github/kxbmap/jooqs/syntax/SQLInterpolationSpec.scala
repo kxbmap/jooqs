@@ -1,7 +1,7 @@
 package com.github.kxbmap.jooqs.syntax
 
-import org.jooq.{SQLDialect, SQL}
 import org.jooq.impl.DSL
+import org.jooq.{SQL, SQLDialect}
 import org.scalatest.FunSpec
 
 //noinspection SqlNoDataSourceInspection
