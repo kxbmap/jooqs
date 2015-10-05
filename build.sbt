@@ -15,8 +15,8 @@ lazy val commonSettings = Seq[Setting[_]](
   version := "0.1.0-SNAPSHOT",
   organization := "com.github.kxbmap",
   scalaVersion := "2.11.7",
-  jooqVersion := "3.6.2",
-  configsVersion := "0.3.0-SNAPSHOT",
+  jooqVersion := "3.6.4",
+  configsVersion := "0.3.0",
   scalaTestVersion := (CrossVersion.partialVersion(scalaVersion.value) match {
     case Some((2, 12)) => "2.2.5-M2"
     case _             => "2.2.5"
@@ -39,7 +39,7 @@ lazy val crossVersionSettings = Seq[Setting[_]](
 lazy val scalaTestSettings = Seq[Setting[_]](
   libraryDependencies ++= Seq(
     "org.scalatest" %% "scalatest" % scalaTestVersion.value % "test",
-    "org.scalacheck" %% "scalacheck" % "1.12.4" % "test",
+    "org.scalacheck" %% "scalacheck" % "1.12.5" % "test",
     "org.mockito" % "mockito-core" % "2.0.31-beta" % "test"
   )
 )
@@ -56,7 +56,7 @@ lazy val core = project.settings(
   compile in Compile <<= (compile in Compile).dependsOn(generateSyntax),
   libraryDependencies ++= Seq(
     "org.jooq" % "jooq" % jooqVersion.value,
-    "com.h2database" % "h2" % "1.4.188" % "test",
+    "com.h2database" % "h2" % "1.4.189" % "test",
     "org.slf4j" % "slf4j-simple" % "1.7.12" % "test"
   )
 )
@@ -66,19 +66,17 @@ lazy val config = project.settings(
   commonSettings,
   crossVersionSettings,
   scalapropsSettings,
-  scalapropsVersion := "0.1.13",
+  scalapropsVersion := "0.1.14",
   libraryDependencies ++= Seq(
     "org.jooq" % "jooq" % jooqVersion.value,
-    "com.github.kxbmap" %% "configs" % configsVersion.value,
-    "com.github.kxbmap" %% "configs-macro" % configsVersion.value % "provided"
-  ),
-  resolvers += Resolver.sonatypeRepo("snapshots")
+    "com.github.kxbmap" %% "configs" % configsVersion.value
+  )
 )
 
 lazy val play = project.settings(
   name := "jooqs-play",
   commonSettings,
-  playVersion := "2.4.2",
+  playVersion := "2.4.3",
   libraryDependencies ++= Seq(
     "com.typesafe.play" %% "play-jdbc-api" % playVersion.value,
     "com.typesafe.play" %% "play-jdbc" % playVersion.value % "test",
