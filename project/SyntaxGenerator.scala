@@ -1,7 +1,23 @@
-import sbt.Path._
-import sbt.{File, IO, Logger}
+import sbt.Keys._
+import sbt._
 
-object SyntaxGenerator {
+object SyntaxGenerator extends AutoPlugin {
+
+  object autoImport {
+
+    val generateSyntax = taskKey[Unit]("generate syntax object")
+
+  }
+
+  import autoImport._
+
+  override lazy val projectSettings: Seq[Setting[_]] = Seq(
+    generateSyntax := {
+      gen((scalaSource in Compile).value, streams.value.log)
+    },
+    compile in Compile <<= (compile in Compile).dependsOn(generateSyntax)
+  )
+
 
   val pkg = "com.github.kxbmap.jooqs.syntax"
 
@@ -13,7 +29,7 @@ object SyntaxGenerator {
     (1 to 22).map(new RecordNOpsClass(_)) ++
     (1 to 22).map(new TupleNOpsClass(_))
 
-  def apply(scalaSource: File, log: Logger): Unit = {
+  def gen(scalaSource: File, log: Logger): Unit = {
     val file = pkg.split('.').foldLeft(scalaSource)(_ / _) / "package.scala"
     if (file.exists()) {
       val old = IO.read(file)
@@ -49,7 +65,7 @@ object SyntaxGenerator {
 
 
   def updateSource(old: String): String = {
-    val lines = old.lines.toVector
+    val lines = old.linesIterator.toVector
     val s = lines.indexWhere(_.matches("""^\s*//// generation:start$"""))
     if (s == -1) sys.error("missing start generation marker")
     val e = lines.indexWhere(_.matches("""^\s*//// generation:end$"""), s)
@@ -67,14 +83,14 @@ object SyntaxGenerator {
     def end(name: String) = s"^\\s*//// end:${name.replace("[", "\\[")}$$"
 
     val starts = lines.zipWithIndex.collect {
-      case (start(name), i) => name -> i
+      case (start(n), i) => n -> i
     }
     val oldSources = (starts :+ ("sentinel", lines.size)).sliding(2).collect {
-      case Vector((name, s), (_, next)) =>
-        lines.indexWhere(_.matches(end(name)), s) match {
-          case -1             => sys.error(s"missing end marker: $name start: $s")
-          case e if e >= next => sys.error(s"invalid end marker position: $name start: $s, end: $e, next: $next")
-          case e              => name -> lines.slice(s + 1, e).mkString("", "\n", "\n").unindent
+      case Vector((n, s), (_, next)) =>
+        lines.indexWhere(_.matches(end(n)), s) match {
+          case -1             => sys.error(s"missing end marker: $n start: $s")
+          case e if e >= next => sys.error(s"invalid end marker position: $n start: $s, end: $e, next: $next")
+          case e              => n -> lines.slice(s + 1, e).mkString("", "\n", "\n").unindent
         }
     }.toMap
 
@@ -307,7 +323,7 @@ object SyntaxGenerator {
   implicit class IndentOps(val self: String) extends AnyVal {
     def indent: String = indent(1)
 
-    def indent(n: Int): String = self.lines.map {
+    def indent(n: Int): String = self.linesIterator.map {
       case ""   => ""
       case line => "  " * n + line
     }.mkString("\n")
@@ -315,10 +331,10 @@ object SyntaxGenerator {
     def unindent: String = unindent(1)
 
     def unindent(n: Int): String =
-      if (self.lines.forall {
+      if (self.linesIterator.forall {
         case ""   => true
         case line => line.startsWith("  " * n)
-      }) self.lines.map(_.drop(n * 2)).mkString("\n")
+      }) self.linesIterator.map(_.drop(n * 2)).mkString("\n")
       else sys.error("cannot unindent")
   }
 
