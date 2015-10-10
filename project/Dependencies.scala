@@ -44,7 +44,7 @@ object Dependencies extends AutoPlugin {
   import autoImport._
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
-    jooqVersion := "3.6.4",
+    jooqVersion := "3.7.0",
     playVersion := "2.4.3",
     scalaTestVersion := (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 12)) => "2.2.5-M2"
