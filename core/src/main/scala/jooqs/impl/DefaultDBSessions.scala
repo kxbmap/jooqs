@@ -13,9 +13,9 @@ private[jooqs] class DefaultTxDBSession(top: Configuration) extends TxDBSession 
 
   def configuration: Configuration = dynVar.value._1
 
-  def dsl: DSLContext = dynVar.value._2
+  protected[jooqs] def dsl: DSLContext = dynVar.value._2
 
-  def savepoint[T: TxBoundary](block: => T): T =
+  protected[jooqs] def savepoint[T: TxBoundary](block: => T): T =
     dsl.withTransaction { config =>
       dynVar.withValue((config, DSL.using(config))) {
         block
@@ -28,7 +28,7 @@ private[jooqs] class DefaultUnmanagedDBSession(connection: Connection, c: Config
 
   lazy val configuration: Configuration = c.derive(connection)
 
-  lazy val dsl: DSLContext = DSL.using(configuration)
+  protected[jooqs] lazy val dsl: DSLContext = DSL.using(configuration)
 
   def commit(): Unit = connection.commit()
 

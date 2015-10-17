@@ -3,11 +3,11 @@ package jooqs
 import org.jooq.DSLContext
 
 trait DBSession extends SimpleScope {
-  def dsl: DSLContext
+  protected[jooqs] def dsl: DSLContext
 }
 
 trait TxDBSession extends DBSession {
-  def savepoint[T: TxBoundary](block: => T): T
+  protected[jooqs] def savepoint[T: TxBoundary](block: => T): T
 }
 
 trait UnmanagedDBSession extends DBSession {
