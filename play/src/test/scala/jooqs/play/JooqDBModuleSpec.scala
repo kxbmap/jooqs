@@ -3,6 +3,7 @@ package jooqs.play
 import javax.inject.Inject
 import jooqs.Database
 import jooqs.syntax._
+import org.jooq.SQLDialect
 import org.jooq.conf.RenderKeywordStyle
 import play.api.test._
 
@@ -72,13 +73,15 @@ class JooqDBModuleSpec extends PlaySpecification {
       additionalConfiguration = Map(
         "db.default.driver" -> "org.h2.Driver",
         "db.default.url" -> "jdbc:h2:mem:default",
+        "db.default.jooq.dialect" -> "MYSQL",
         "db.default.jooq.renderSchema" -> false,
         "db.default.jooq.render-keyword-style" -> "LOWER"
       )
     )) {
-      val s = app.injector.instanceOf[DefaultComponent].db.settings
-      s.isRenderSchema must_== false
-      s.getRenderKeywordStyle must_== RenderKeywordStyle.LOWER
+      val db = app.injector.instanceOf[DefaultComponent].db
+      db.dialect must_== SQLDialect.MYSQL
+      db.settings.isRenderSchema must_== false
+      db.settings.getRenderKeywordStyle must_== RenderKeywordStyle.LOWER
     }
 
   }
