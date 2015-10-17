@@ -2,6 +2,7 @@ package com.github.kxbmap.jooqs.syntax
 
 import com.github.kxbmap.jooqs._
 import com.github.kxbmap.jooqs.impl.DefaultTransactionContext
+import java.sql.Connection
 import org.jooq._
 import org.jooq.impl.DSL
 import scala.util.control.ControlThrowable
@@ -68,6 +69,16 @@ object `package` {
           throw e
       }
       TxBoundary[T].finish(result, provider, ctx)
+    }
+
+  }
+
+
+  implicit class ConnectionProviderOps(private val self: ConnectionProvider) extends AnyVal {
+
+    def withConnection[A](f: Connection => A): A = {
+      val c = self.acquire()
+      try f(c) finally self.release(c)
     }
 
   }

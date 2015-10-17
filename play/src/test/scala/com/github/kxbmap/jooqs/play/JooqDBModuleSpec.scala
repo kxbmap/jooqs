@@ -1,6 +1,7 @@
 package com.github.kxbmap.jooqs.play
 
 import com.github.kxbmap.jooqs.Database
+import com.github.kxbmap.jooqs.syntax._
 import javax.inject.Inject
 import org.jooq.conf.RenderKeywordStyle
 import play.api.test._
@@ -88,13 +89,10 @@ trait Component {
 
   def db: Database
 
-  def url: String = {
-    val con = db.configuration.connectionProvider().acquire()
-    try
-      con.getMetaData.getURL
-    finally
-      con.close()
-  }
+  def url: String =
+    db.configuration.connectionProvider().withConnection {
+      _.getMetaData.getURL
+    }
 
 }
 
