@@ -72,8 +72,8 @@ class JooqDBModuleSpec extends PlaySpecification {
       additionalConfiguration = Map(
         "db.default.driver" -> "org.h2.Driver",
         "db.default.url" -> "jdbc:h2:mem:default",
-        "db.default.jooq.settings.renderSchema" -> false,
-        "db.default.jooq.settings.render-keyword-style" -> "LOWER"
+        "db.default.jooq.renderSchema" -> false,
+        "db.default.jooq.render-keyword-style" -> "LOWER"
       )
     )) {
       val s = app.injector.instanceOf[DefaultComponent].db.settings

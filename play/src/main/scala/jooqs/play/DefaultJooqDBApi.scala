@@ -13,8 +13,7 @@ class DefaultJooqDBApi(config: Config, dbApi: DBApi) extends JooqDBApi {
   private lazy val databaseByName: Map[String, Database] = {
     val dbKey = config.getString("play.db.config")
     dbApi.databases().map { p =>
-      val path = s"$dbKey.${p.name}.jooq.settings"
-      val settings = config.getOrElse(path, SettingsTools.defaultSettings())
+      val settings = config.getOrElse(s"$dbKey.${p.name}.jooq", SettingsTools.defaultSettings())
       p.name -> Database(p.dataSource, JDBCUtils.dialect(p.url), settings)
     }(collection.breakOut)
   }
