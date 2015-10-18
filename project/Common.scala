@@ -27,7 +27,7 @@ object Common extends AutoPlugin {
   object autoImport {
 
     val crossVersionSettings: Seq[Setting[_]] = Seq(
-      crossScalaVersions += "2.12.0-M2"
+      crossScalaVersions += "2.12.0-M3"
     )
   }
 
