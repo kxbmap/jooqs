@@ -3,6 +3,8 @@ import sbt._
 
 object SyntaxGenerator extends AutoPlugin {
 
+  override def requires: Plugins = plugins.JvmPlugin
+
   object autoImport {
 
     val generateSyntax = taskKey[Unit]("generate syntax object")
@@ -19,7 +21,7 @@ object SyntaxGenerator extends AutoPlugin {
   )
 
 
-  val pkg = "com.github.kxbmap.jooqs.syntax"
+  val pkg = "jooqs.syntax"
 
   lazy val classes = Seq(
     ConditionOpsClass,
