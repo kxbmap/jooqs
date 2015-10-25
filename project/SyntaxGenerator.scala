@@ -27,7 +27,11 @@ object SyntaxGenerator extends AutoPlugin {
     ConditionOpsClass,
     FieldOpsClass,
     NumberFieldOpsClass
-  ) ++
+  ) ++ Seq(
+    classOf[java.sql.Date],
+    classOf[java.sql.Time],
+    classOf[java.sql.Timestamp]
+  ).map(new DateTimeFieldOpsClass(_)) ++
     (1 to 22).map(new RecordNOpsClass(_)) ++
     (1 to 22).map(new TupleNOpsClass(_))
 
@@ -278,6 +282,30 @@ object SyntaxGenerator extends AutoPlugin {
         m => s"DSL.$m($self, other)")
 
       arithmeticOps ++ bitwiseOps
+    }
+  }
+
+
+  class DateTimeFieldOpsClass(clazz: Class[_]) extends OpsClass {
+
+    val tpe: String = s"${clazz.getSimpleName}FieldOps"
+
+    val selfTpe: String = s"Field[${clazz.getName}]"
+
+    lazy val members: Seq[String] = {
+      for {
+        (op, m) <- Seq(
+          "+" -> "add",
+          "-" -> "sub"
+        )
+        t <- Seq(
+          "Number",
+          "Field[_ <: Number]"
+        )
+      } yield
+        s"""def $op(other: $t): $selfTpe =
+           |  $self.$m(other)
+           |""".stripMargin
     }
   }
 

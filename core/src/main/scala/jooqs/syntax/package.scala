@@ -344,6 +344,72 @@ object `package` {
 
   //// end:NumberFieldOps
 
+  //// start:DateFieldOps
+  implicit class DateFieldOps(private val self: Field[java.sql.Date]) extends AnyVal {
+
+    ////
+
+    ////
+
+    def +(other: Number): Field[java.sql.Date] =
+      self.add(other)
+
+    def +(other: Field[_ <: Number]): Field[java.sql.Date] =
+      self.add(other)
+
+    def -(other: Number): Field[java.sql.Date] =
+      self.sub(other)
+
+    def -(other: Field[_ <: Number]): Field[java.sql.Date] =
+      self.sub(other)
+  }
+
+  //// end:DateFieldOps
+
+  //// start:TimeFieldOps
+  implicit class TimeFieldOps(private val self: Field[java.sql.Time]) extends AnyVal {
+
+    ////
+
+    ////
+
+    def +(other: Number): Field[java.sql.Time] =
+      self.add(other)
+
+    def +(other: Field[_ <: Number]): Field[java.sql.Time] =
+      self.add(other)
+
+    def -(other: Number): Field[java.sql.Time] =
+      self.sub(other)
+
+    def -(other: Field[_ <: Number]): Field[java.sql.Time] =
+      self.sub(other)
+  }
+
+  //// end:TimeFieldOps
+
+  //// start:TimestampFieldOps
+  implicit class TimestampFieldOps(private val self: Field[java.sql.Timestamp]) extends AnyVal {
+
+    ////
+
+    ////
+
+    def +(other: Number): Field[java.sql.Timestamp] =
+      self.add(other)
+
+    def +(other: Field[_ <: Number]): Field[java.sql.Timestamp] =
+      self.add(other)
+
+    def -(other: Number): Field[java.sql.Timestamp] =
+      self.sub(other)
+
+    def -(other: Field[_ <: Number]): Field[java.sql.Timestamp] =
+      self.sub(other)
+  }
+
+  //// end:TimestampFieldOps
+
   //// start:Record1Ops
   implicit class Record1Ops[T1](private val self: Record1[T1]) extends AnyVal {
 
