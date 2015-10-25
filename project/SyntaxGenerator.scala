@@ -156,7 +156,8 @@ object SyntaxGenerator extends AutoPlugin {
 
     lazy val members: Seq[String] = {
       val not =
-        s"""def unary_! : Condition = $self.not()
+        s"""def unary_! : Condition =
+           |  $self.not()
            |""".stripMargin
 
       val ops = for {
@@ -170,7 +171,8 @@ object SyntaxGenerator extends AutoPlugin {
           "java.lang.Boolean" -> "DSL.inline(other)"
         )
       } yield
-        s"""def $op(other: $t): Condition = $self.$m($o)
+        s"""def $op(other: $t): Condition =
+           |  $self.$m($o)
            |""".stripMargin
 
       not +: ops
@@ -188,7 +190,8 @@ object SyntaxGenerator extends AutoPlugin {
         (op, m) <- ops
         t <- types
       } yield
-        s"""def $op(other: $t): Condition = $self.$m(other)
+        s"""def $op(other: $t): Condition =
+           |  $self.$m(other)
            |""".stripMargin
 
       val standardCondOps = condOps(
@@ -229,14 +232,16 @@ object SyntaxGenerator extends AutoPlugin {
 
     lazy val members: Seq[String] = {
       def unary(op: String, body: String) =
-        s"""def unary_$op : Field[T] = $body
+        s"""def unary_$op : Field[T] =
+           |  $body
            |""".stripMargin
 
       def binOps(ops: Seq[(String, String)], types: Seq[String], body: String => String) = for {
         (op, m) <- ops
         t <- types
       } yield
-        s"""def $op(other: $t): Field[T] = ${body(m)}
+        s"""def $op(other: $t): Field[T] =
+           |  ${body(m)}
            |""".stripMargin
 
       val neg = unary("-", s"$self.neg()")
@@ -290,7 +295,8 @@ object SyntaxGenerator extends AutoPlugin {
       val tpe = if (n == 1) "Tuple1[T1]" else s"($ts)"
       val body = if (n == 1) "Tuple1(value1)" else s"(${Util.ns(n, "value" + _)})"
       val toTuple =
-        s"""def toTuple: $tpe = $body
+        s"""def toTuple: $tpe =
+           |  $body
            |""".stripMargin
 
       Seq(toTuple)
@@ -309,7 +315,8 @@ object SyntaxGenerator extends AutoPlugin {
 
     lazy val members: Seq[String] = {
       val row =
-        s"""def row: Row$n[$ts] = DSL.row(${Util.ns(n, "_" + _)})
+        s"""def row: Row$n[$ts] =
+           |  DSL.row(${Util.ns(n, "_" + _)})
            |""".stripMargin
 
       Seq(row)

@@ -9,49 +9,61 @@ import scala.util.control.ControlThrowable
 
 object `package` {
 
-  def dsl(implicit session: DBSession): DSLContext = session.dsl
+  def dsl(implicit session: DBSession): DSLContext =
+    session.dsl
 
-  def savepoint[T: TxBoundary](block: => T)(implicit session: TxDBSession): T = session.savepoint(block)
+  def savepoint[T: TxBoundary](block: => T)(implicit session: TxDBSession): T =
+    session.savepoint(block)
 
 
   implicit class PrimitiveTypeOps[T](private val self: T) extends AnyVal {
-    def box[U](implicit b: Box[T, U]): U = b.box(self)
+    def box[U](implicit b: Box[T, U]): U =
+      b.box(self)
   }
 
   implicit class PrimitiveTypeOptionOps[T](private val self: Option[T]) extends AnyVal {
-    def box[U](implicit b: Box[T, U]): Option[U] = self.map(b.box)
+    def box[U](implicit b: Box[T, U]): Option[U] =
+      self.map(b.box)
   }
 
 
   implicit class RecordOps(private val self: Record) extends AnyVal {
 
-    def get[T, U](field: Field[T])(implicit u: Unbox[T, U]): U = u.unbox(self.getValue(field))
+    def get[T, U](field: Field[T])(implicit u: Unbox[T, U]): U =
+      u.unbox(self.getValue(field))
 
-    def getOpt[T, U](field: Field[T])(implicit u: Unbox[T, U]): Option[U] = Option(self.getValue(field)).map(u.unbox)
+    def getOpt[T, U](field: Field[T])(implicit u: Unbox[T, U]): Option[U] =
+      Option(self.getValue(field)).map(u.unbox)
   }
 
 
   implicit class QueryPartOps[Q <: QueryPart](private val self: Q) extends AnyVal {
 
-    def map[R](f: Q => R): R = f(self)
+    def map[R](f: Q => R): R =
+      f(self)
 
-    def mapIf[R >: Q](cond: Boolean, f: Q => R): R = if (cond) f(self) else self
+    def mapIf[R >: Q](cond: Boolean, f: Q => R): R =
+      if (cond) f(self) else self
   }
 
 
   implicit class SelectSelectStepOps[R <: Record](private val self: SelectSelectStep[R]) extends AnyVal {
 
-    def select(fields: Array[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
+    def select(fields: Array[Field[_]]): SelectSelectStep[Record] =
+      self.select(fields: _*)
 
-    def select(fields: Seq[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
+    def select(fields: Seq[Field[_]]): SelectSelectStep[Record] =
+      self.select(fields: _*)
   }
 
 
   implicit class DSLContextOps(private val self: DSLContext) extends AnyVal {
 
-    def select(fields: Array[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
+    def select(fields: Array[Field[_]]): SelectSelectStep[Record] =
+      self.select(fields: _*)
 
-    def select(fields: Seq[Field[_]]): SelectSelectStep[Record] = self.select(fields: _*)
+    def select(fields: Seq[Field[_]]): SelectSelectStep[Record] =
+      self.select(fields: _*)
 
     def withTransaction[T: TxBoundary](body: Configuration => T): T = {
       val ctx = new DefaultTransactionContext(self.configuration.derive())
@@ -108,19 +120,26 @@ object `package` {
 
     ////
 
-    def unary_! : Condition = self.not()
+    def unary_! : Condition =
+      self.not()
 
-    def &&(other: Condition): Condition = self.and(other)
+    def &&(other: Condition): Condition =
+      self.and(other)
 
-    def &&(other: Field[java.lang.Boolean]): Condition = self.and(other)
+    def &&(other: Field[java.lang.Boolean]): Condition =
+      self.and(other)
 
-    def &&(other: java.lang.Boolean): Condition = self.and(DSL.inline(other))
+    def &&(other: java.lang.Boolean): Condition =
+      self.and(DSL.inline(other))
 
-    def ||(other: Condition): Condition = self.or(other)
+    def ||(other: Condition): Condition =
+      self.or(other)
 
-    def ||(other: Field[java.lang.Boolean]): Condition = self.or(other)
+    def ||(other: Field[java.lang.Boolean]): Condition =
+      self.or(other)
 
-    def ||(other: java.lang.Boolean): Condition = self.or(DSL.inline(other))
+    def ||(other: java.lang.Boolean): Condition =
+      self.or(DSL.inline(other))
   }
 
   //// end:ConditionOps
@@ -130,71 +149,103 @@ object `package` {
 
     ////
 
-    def ||(other: String): Field[String] = DSL.concat(self, DSL.value(other))
+    def ||(other: String): Field[String] =
+      DSL.concat(self, DSL.value(other))
 
-    def ||(other: Field[_]): Field[String] = DSL.concat(self, other)
+    def ||(other: Field[_]): Field[String] =
+      DSL.concat(self, other)
 
     ////
 
-    def ===(other: T): Condition = self.equal(other)
+    def ===(other: T): Condition =
+      self.equal(other)
 
-    def ===(other: Field[T]): Condition = self.equal(other)
+    def ===(other: Field[T]): Condition =
+      self.equal(other)
 
-    def ===(other: Select[_ <: Record1[T]]): Condition = self.equal(other)
+    def ===(other: Select[_ <: Record1[T]]): Condition =
+      self.equal(other)
 
-    def ===(other: QuantifiedSelect[_ <: Record1[T]]): Condition = self.equal(other)
+    def ===(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+      self.equal(other)
 
-    def =!=(other: T): Condition = self.notEqual(other)
+    def =!=(other: T): Condition =
+      self.notEqual(other)
 
-    def =!=(other: Field[T]): Condition = self.notEqual(other)
+    def =!=(other: Field[T]): Condition =
+      self.notEqual(other)
 
-    def =!=(other: Select[_ <: Record1[T]]): Condition = self.notEqual(other)
+    def =!=(other: Select[_ <: Record1[T]]): Condition =
+      self.notEqual(other)
 
-    def =!=(other: QuantifiedSelect[_ <: Record1[T]]): Condition = self.notEqual(other)
+    def =!=(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+      self.notEqual(other)
 
-    def <>(other: T): Condition = self.notEqual(other)
+    def <>(other: T): Condition =
+      self.notEqual(other)
 
-    def <>(other: Field[T]): Condition = self.notEqual(other)
+    def <>(other: Field[T]): Condition =
+      self.notEqual(other)
 
-    def <>(other: Select[_ <: Record1[T]]): Condition = self.notEqual(other)
+    def <>(other: Select[_ <: Record1[T]]): Condition =
+      self.notEqual(other)
 
-    def <>(other: QuantifiedSelect[_ <: Record1[T]]): Condition = self.notEqual(other)
+    def <>(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+      self.notEqual(other)
 
-    def <(other: T): Condition = self.lessThan(other)
+    def <(other: T): Condition =
+      self.lessThan(other)
 
-    def <(other: Field[T]): Condition = self.lessThan(other)
+    def <(other: Field[T]): Condition =
+      self.lessThan(other)
 
-    def <(other: Select[_ <: Record1[T]]): Condition = self.lessThan(other)
+    def <(other: Select[_ <: Record1[T]]): Condition =
+      self.lessThan(other)
 
-    def <(other: QuantifiedSelect[_ <: Record1[T]]): Condition = self.lessThan(other)
+    def <(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+      self.lessThan(other)
 
-    def <=(other: T): Condition = self.lessOrEqual(other)
+    def <=(other: T): Condition =
+      self.lessOrEqual(other)
 
-    def <=(other: Field[T]): Condition = self.lessOrEqual(other)
+    def <=(other: Field[T]): Condition =
+      self.lessOrEqual(other)
 
-    def <=(other: Select[_ <: Record1[T]]): Condition = self.lessOrEqual(other)
+    def <=(other: Select[_ <: Record1[T]]): Condition =
+      self.lessOrEqual(other)
 
-    def <=(other: QuantifiedSelect[_ <: Record1[T]]): Condition = self.lessOrEqual(other)
+    def <=(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+      self.lessOrEqual(other)
 
-    def >(other: T): Condition = self.greaterThan(other)
+    def >(other: T): Condition =
+      self.greaterThan(other)
 
-    def >(other: Field[T]): Condition = self.greaterThan(other)
+    def >(other: Field[T]): Condition =
+      self.greaterThan(other)
 
-    def >(other: Select[_ <: Record1[T]]): Condition = self.greaterThan(other)
+    def >(other: Select[_ <: Record1[T]]): Condition =
+      self.greaterThan(other)
 
-    def >(other: QuantifiedSelect[_ <: Record1[T]]): Condition = self.greaterThan(other)
+    def >(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+      self.greaterThan(other)
 
-    def >=(other: T): Condition = self.greaterOrEqual(other)
+    def >=(other: T): Condition =
+      self.greaterOrEqual(other)
 
-    def >=(other: Field[T]): Condition = self.greaterOrEqual(other)
+    def >=(other: Field[T]): Condition =
+      self.greaterOrEqual(other)
 
-    def >=(other: Select[_ <: Record1[T]]): Condition = self.greaterOrEqual(other)
+    def >=(other: Select[_ <: Record1[T]]): Condition =
+      self.greaterOrEqual(other)
 
-    def >=(other: QuantifiedSelect[_ <: Record1[T]]): Condition = self.greaterOrEqual(other)
+    def >=(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+      self.greaterOrEqual(other)
 
-    def <=>(other: T): Condition = self.isNotDistinctFrom(other)
+    def <=>(other: T): Condition =
+      self.isNotDistinctFrom(other)
 
-    def <=>(other: Field[T]): Condition = self.isNotDistinctFrom(other)
+    def <=>(other: Field[T]): Condition =
+      self.isNotDistinctFrom(other)
   }
 
   //// end:FieldOps
@@ -206,61 +257,89 @@ object `package` {
 
     ////
 
-    def unary_- : Field[T] = self.neg()
+    def unary_- : Field[T] =
+      self.neg()
 
-    def +(other: Number): Field[T] = self.add(other)
+    def +(other: Number): Field[T] =
+      self.add(other)
 
-    def +(other: Field[_ <: Number]): Field[T] = self.add(other)
+    def +(other: Field[_ <: Number]): Field[T] =
+      self.add(other)
 
-    def -(other: Number): Field[T] = self.sub(other)
+    def -(other: Number): Field[T] =
+      self.sub(other)
 
-    def -(other: Field[_ <: Number]): Field[T] = self.sub(other)
+    def -(other: Field[_ <: Number]): Field[T] =
+      self.sub(other)
 
-    def *(other: Number): Field[T] = self.mul(other)
+    def *(other: Number): Field[T] =
+      self.mul(other)
 
-    def *(other: Field[_ <: Number]): Field[T] = self.mul(other)
+    def *(other: Field[_ <: Number]): Field[T] =
+      self.mul(other)
 
-    def /(other: Number): Field[T] = self.div(other)
+    def /(other: Number): Field[T] =
+      self.div(other)
 
-    def /(other: Field[_ <: Number]): Field[T] = self.div(other)
+    def /(other: Field[_ <: Number]): Field[T] =
+      self.div(other)
 
-    def %(other: Number): Field[T] = self.mod(other)
+    def %(other: Number): Field[T] =
+      self.mod(other)
 
-    def %(other: Field[_ <: Number]): Field[T] = self.mod(other)
+    def %(other: Field[_ <: Number]): Field[T] =
+      self.mod(other)
 
-    def unary_~ : Field[T] = DSL.bitNot(self)
+    def unary_~ : Field[T] =
+      DSL.bitNot(self)
 
-    def &(other: T): Field[T] = DSL.bitAnd(self, other)
+    def &(other: T): Field[T] =
+      DSL.bitAnd(self, other)
 
-    def &(other: Field[T]): Field[T] = DSL.bitAnd(self, other)
+    def &(other: Field[T]): Field[T] =
+      DSL.bitAnd(self, other)
 
-    def |(other: T): Field[T] = DSL.bitOr(self, other)
+    def |(other: T): Field[T] =
+      DSL.bitOr(self, other)
 
-    def |(other: Field[T]): Field[T] = DSL.bitOr(self, other)
+    def |(other: Field[T]): Field[T] =
+      DSL.bitOr(self, other)
 
-    def ^(other: T): Field[T] = DSL.bitXor(self, other)
+    def ^(other: T): Field[T] =
+      DSL.bitXor(self, other)
 
-    def ^(other: Field[T]): Field[T] = DSL.bitXor(self, other)
+    def ^(other: Field[T]): Field[T] =
+      DSL.bitXor(self, other)
 
-    def ~&(other: T): Field[T] = DSL.bitNand(self, other)
+    def ~&(other: T): Field[T] =
+      DSL.bitNand(self, other)
 
-    def ~&(other: Field[T]): Field[T] = DSL.bitNand(self, other)
+    def ~&(other: Field[T]): Field[T] =
+      DSL.bitNand(self, other)
 
-    def ~|(other: T): Field[T] = DSL.bitNor(self, other)
+    def ~|(other: T): Field[T] =
+      DSL.bitNor(self, other)
 
-    def ~|(other: Field[T]): Field[T] = DSL.bitNor(self, other)
+    def ~|(other: Field[T]): Field[T] =
+      DSL.bitNor(self, other)
 
-    def ~^(other: T): Field[T] = DSL.bitXNor(self, other)
+    def ~^(other: T): Field[T] =
+      DSL.bitXNor(self, other)
 
-    def ~^(other: Field[T]): Field[T] = DSL.bitXNor(self, other)
+    def ~^(other: Field[T]): Field[T] =
+      DSL.bitXNor(self, other)
 
-    def <<(other: T): Field[T] = DSL.shl(self, other)
+    def <<(other: T): Field[T] =
+      DSL.shl(self, other)
 
-    def <<(other: Field[T]): Field[T] = DSL.shl(self, other)
+    def <<(other: Field[T]): Field[T] =
+      DSL.shl(self, other)
 
-    def >>(other: T): Field[T] = DSL.shr(self, other)
+    def >>(other: T): Field[T] =
+      DSL.shr(self, other)
 
-    def >>(other: Field[T]): Field[T] = DSL.shr(self, other)
+    def >>(other: Field[T]): Field[T] =
+      DSL.shr(self, other)
   }
 
   //// end:NumberFieldOps
@@ -274,7 +353,8 @@ object `package` {
 
     ////
 
-    def toTuple: Tuple1[T1] = Tuple1(value1)
+    def toTuple: Tuple1[T1] =
+      Tuple1(value1)
   }
 
   //// end:Record1Ops
@@ -288,7 +368,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2) = (value1, value2)
+    def toTuple: (T1, T2) =
+      (value1, value2)
   }
 
   //// end:Record2Ops
@@ -302,7 +383,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3) = (value1, value2, value3)
+    def toTuple: (T1, T2, T3) =
+      (value1, value2, value3)
   }
 
   //// end:Record3Ops
@@ -316,7 +398,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4) = (value1, value2, value3, value4)
+    def toTuple: (T1, T2, T3, T4) =
+      (value1, value2, value3, value4)
   }
 
   //// end:Record4Ops
@@ -330,7 +413,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5) = (value1, value2, value3, value4, value5)
+    def toTuple: (T1, T2, T3, T4, T5) =
+      (value1, value2, value3, value4, value5)
   }
 
   //// end:Record5Ops
@@ -344,7 +428,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6) = (value1, value2, value3, value4, value5, value6)
+    def toTuple: (T1, T2, T3, T4, T5, T6) =
+      (value1, value2, value3, value4, value5, value6)
   }
 
   //// end:Record6Ops
@@ -358,7 +443,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7) = (value1, value2, value3, value4, value5, value6, value7)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7) =
+      (value1, value2, value3, value4, value5, value6, value7)
   }
 
   //// end:Record7Ops
@@ -372,7 +458,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8) = (value1, value2, value3, value4, value5, value6, value7, value8)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8) =
+      (value1, value2, value3, value4, value5, value6, value7, value8)
   }
 
   //// end:Record8Ops
@@ -386,7 +473,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9) = (value1, value2, value3, value4, value5, value6, value7, value8, value9)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9)
   }
 
   //// end:Record9Ops
@@ -400,7 +488,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
   }
 
   //// end:Record10Ops
@@ -414,7 +503,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11)
   }
 
   //// end:Record11Ops
@@ -428,7 +518,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12)
   }
 
   //// end:Record12Ops
@@ -442,7 +533,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13)
   }
 
   //// end:Record13Ops
@@ -456,7 +548,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14)
   }
 
   //// end:Record14Ops
@@ -470,7 +563,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
   }
 
   //// end:Record15Ops
@@ -484,7 +578,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16)
   }
 
   //// end:Record16Ops
@@ -498,7 +593,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17)
   }
 
   //// end:Record17Ops
@@ -512,7 +608,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18)
   }
 
   //// end:Record18Ops
@@ -526,7 +623,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19)
   }
 
   //// end:Record19Ops
@@ -540,7 +638,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20)
   }
 
   //// end:Record20Ops
@@ -554,7 +653,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21)
   }
 
   //// end:Record21Ops
@@ -568,7 +668,8 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) = (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21, value22)
+    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) =
+      (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21, value22)
   }
 
   //// end:Record22Ops
@@ -582,7 +683,8 @@ object `package` {
 
     ////
 
-    def row: Row1[T1] = DSL.row(_1)
+    def row: Row1[T1] =
+      DSL.row(_1)
   }
 
   //// end:Tuple1Ops
@@ -596,7 +698,8 @@ object `package` {
 
     ////
 
-    def row: Row2[T1, T2] = DSL.row(_1, _2)
+    def row: Row2[T1, T2] =
+      DSL.row(_1, _2)
   }
 
   //// end:Tuple2Ops
@@ -610,7 +713,8 @@ object `package` {
 
     ////
 
-    def row: Row3[T1, T2, T3] = DSL.row(_1, _2, _3)
+    def row: Row3[T1, T2, T3] =
+      DSL.row(_1, _2, _3)
   }
 
   //// end:Tuple3Ops
@@ -624,7 +728,8 @@ object `package` {
 
     ////
 
-    def row: Row4[T1, T2, T3, T4] = DSL.row(_1, _2, _3, _4)
+    def row: Row4[T1, T2, T3, T4] =
+      DSL.row(_1, _2, _3, _4)
   }
 
   //// end:Tuple4Ops
@@ -638,7 +743,8 @@ object `package` {
 
     ////
 
-    def row: Row5[T1, T2, T3, T4, T5] = DSL.row(_1, _2, _3, _4, _5)
+    def row: Row5[T1, T2, T3, T4, T5] =
+      DSL.row(_1, _2, _3, _4, _5)
   }
 
   //// end:Tuple5Ops
@@ -652,7 +758,8 @@ object `package` {
 
     ////
 
-    def row: Row6[T1, T2, T3, T4, T5, T6] = DSL.row(_1, _2, _3, _4, _5, _6)
+    def row: Row6[T1, T2, T3, T4, T5, T6] =
+      DSL.row(_1, _2, _3, _4, _5, _6)
   }
 
   //// end:Tuple6Ops
@@ -666,7 +773,8 @@ object `package` {
 
     ////
 
-    def row: Row7[T1, T2, T3, T4, T5, T6, T7] = DSL.row(_1, _2, _3, _4, _5, _6, _7)
+    def row: Row7[T1, T2, T3, T4, T5, T6, T7] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7)
   }
 
   //// end:Tuple7Ops
@@ -680,7 +788,8 @@ object `package` {
 
     ////
 
-    def row: Row8[T1, T2, T3, T4, T5, T6, T7, T8] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8)
+    def row: Row8[T1, T2, T3, T4, T5, T6, T7, T8] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8)
   }
 
   //// end:Tuple8Ops
@@ -694,7 +803,8 @@ object `package` {
 
     ////
 
-    def row: Row9[T1, T2, T3, T4, T5, T6, T7, T8, T9] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9)
+    def row: Row9[T1, T2, T3, T4, T5, T6, T7, T8, T9] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9)
   }
 
   //// end:Tuple9Ops
@@ -708,7 +818,8 @@ object `package` {
 
     ////
 
-    def row: Row10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10)
+    def row: Row10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10)
   }
 
   //// end:Tuple10Ops
@@ -722,7 +833,8 @@ object `package` {
 
     ////
 
-    def row: Row11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
+    def row: Row11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
   }
 
   //// end:Tuple11Ops
@@ -736,7 +848,8 @@ object `package` {
 
     ////
 
-    def row: Row12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
+    def row: Row12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
   }
 
   //// end:Tuple12Ops
@@ -750,7 +863,8 @@ object `package` {
 
     ////
 
-    def row: Row13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
+    def row: Row13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
   }
 
   //// end:Tuple13Ops
@@ -764,7 +878,8 @@ object `package` {
 
     ////
 
-    def row: Row14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14)
+    def row: Row14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14)
   }
 
   //// end:Tuple14Ops
@@ -778,7 +893,8 @@ object `package` {
 
     ////
 
-    def row: Row15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15)
+    def row: Row15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15)
   }
 
   //// end:Tuple15Ops
@@ -792,7 +908,8 @@ object `package` {
 
     ////
 
-    def row: Row16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16)
+    def row: Row16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16)
   }
 
   //// end:Tuple16Ops
@@ -806,7 +923,8 @@ object `package` {
 
     ////
 
-    def row: Row17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17)
+    def row: Row17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17)
   }
 
   //// end:Tuple17Ops
@@ -820,7 +938,8 @@ object `package` {
 
     ////
 
-    def row: Row18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)
+    def row: Row18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)
   }
 
   //// end:Tuple18Ops
@@ -834,7 +953,8 @@ object `package` {
 
     ////
 
-    def row: Row19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)
+    def row: Row19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)
   }
 
   //// end:Tuple19Ops
@@ -848,7 +968,8 @@ object `package` {
 
     ////
 
-    def row: Row20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20)
+    def row: Row20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20)
   }
 
   //// end:Tuple20Ops
@@ -862,7 +983,8 @@ object `package` {
 
     ////
 
-    def row: Row21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21)
+    def row: Row21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21)
   }
 
   //// end:Tuple21Ops
@@ -876,7 +998,8 @@ object `package` {
 
     ////
 
-    def row: Row22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] = DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22)
+    def row: Row22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] =
+      DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22)
   }
 
   //// end:Tuple22Ops
