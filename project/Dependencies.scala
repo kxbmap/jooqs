@@ -11,7 +11,7 @@ object Dependencies extends AutoPlugin {
     val jooqVersion = settingKey[String]("jOOQ version")
     val playVersion = settingKey[String]("Play framework version")
     val scalaTestVersion = settingKey[String]("ScalaTest version")
-    val scalacheckVersion = settingKey[String]("scalacheck version")
+    val scalaCheckVersion = settingKey[String]("ScalaCheck version")
 
     object dependencies {
 
@@ -20,7 +20,7 @@ object Dependencies extends AutoPlugin {
         "com.h2database" % "h2" % "1.4.190" % "test",
         "org.slf4j" % "slf4j-simple" % "1.7.12" % "test",
         "org.scalatest" %% "scalatest" % scalaTestVersion.value % "test",
-        "org.scalacheck" %% "scalacheck" % scalacheckVersion.value % "test",
+        "org.scalacheck" %% "scalacheck" % scalaCheckVersion.value % "test",
         "org.mockito" % "mockito-core" % "2.0.31-beta" % "test"
       )
 
@@ -52,10 +52,7 @@ object Dependencies extends AutoPlugin {
       case Some((2, 12)) => "2.2.5-M3"
       case _             => "2.2.5"
     }),
-    scalacheckVersion := (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 12)) => "1.11.6"
-      case _             => "1.12.5"
-    })
+    scalaCheckVersion := "1.12.5"
   )
 
 }
