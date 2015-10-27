@@ -30,17 +30,6 @@ lazy val play25 = project
   .settings(
     name := "jooqs-play25",
     dependencies.play25,
-    Seq(Compile, Test).flatMap(inConfig(_)(Seq(
-      sourcesToCopies := copies(
-        (sources in play24).value,
-        (sourceDirectories in play24).value,
-        sourceManaged.value
-      ),
-      resourcesToCopies := copies(
-        (resources in play24).value,
-        (resourceDirectories in play24).value,
-        resourceManaged.value
-      )
-    )))
+    copySourcesProject := play24
   )
   .dependsOn(core, config)
