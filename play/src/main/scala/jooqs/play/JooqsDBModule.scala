@@ -10,13 +10,13 @@ import scala.concurrent.Future
 /**
  * jOOQ database runtime inject module
  */
-final class JooqDBModule extends Module {
+final class JooqsDBModule extends Module {
   def bindings(environment: Environment, configuration: Configuration): Seq[Binding[_]] = {
     val dbKey = configuration.underlying.getString("play.db.config")
     val default = configuration.underlying.getString("play.db.default")
     val dbs = configuration.getConfig(dbKey).getOrElse(Configuration.empty).subKeys
     Seq(
-      bind[JooqDBApi].toProvider[JooqDBApiProvider]
+      bind[JooqsDBApi].toProvider[JooqsDBApiProvider]
     ) ++ namedDatabaseBindings(dbs) ++ defaultDatabaseBinding(default, dbs)
   }
 
@@ -36,7 +36,7 @@ final class JooqDBModule extends Module {
 /**
  * jOOQ database components (for compile-time injection).
  */
-trait JooqDBComponent {
+trait JooqsDBComponent {
 
   def configuration: Configuration
 
@@ -44,20 +44,20 @@ trait JooqDBComponent {
 
   def applicationLifecycle: ApplicationLifecycle
 
-  lazy val jooqDBApi: JooqDBApi = new JooqDBApiProvider(configuration, dbApi, applicationLifecycle).get
+  lazy val jooqsDBApi: JooqsDBApi = new JooqsDBApiProvider(configuration, dbApi, applicationLifecycle).get
 }
 
 
 @Singleton
-class JooqDBApiProvider @Inject()(configuration: Configuration, dbApi: DBApi, lifecycle: ApplicationLifecycle) extends Provider[JooqDBApi] {
-  lazy val get: JooqDBApi = {
-    val jooq = new DefaultJooqDBApi(configuration.underlying, dbApi)
+class JooqsDBApiProvider @Inject()(configuration: Configuration, dbApi: DBApi, lifecycle: ApplicationLifecycle) extends Provider[JooqsDBApi] {
+  lazy val get: JooqsDBApi = {
+    val jooq = new DefaultJooqsDBApi(configuration.underlying, dbApi)
     lifecycle.addStopHook(() => Future.successful(jooq.shutdown()))
     jooq
   }
 }
 
 class NamedDatabaseProvider(name: String) extends Provider[Database] {
-  @Inject private var jooqDBApi: JooqDBApi = _
-  lazy val get: Database = jooqDBApi.database(name)
+  @Inject private var jooqsDBApi: JooqsDBApi = _
+  lazy val get: Database = jooqsDBApi.database(name)
 }

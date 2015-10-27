@@ -8,7 +8,7 @@ import org.jooq.conf.SettingsTools
 import org.jooq.tools.jdbc.JDBCUtils
 import play.api.db.DBApi
 
-class DefaultJooqDBApi(config: Config, dbApi: DBApi) extends JooqDBApi {
+class DefaultJooqsDBApi(config: Config, dbApi: DBApi) extends JooqsDBApi {
 
   private lazy val databaseByName: Map[String, Database] = {
     val dbKey = config.getString("play.db.config")

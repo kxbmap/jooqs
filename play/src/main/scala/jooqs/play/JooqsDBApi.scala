@@ -2,7 +2,7 @@ package jooqs.play
 
 import jooqs.Database
 
-trait JooqDBApi {
+trait JooqsDBApi {
 
   /**
    * All configured DSL databases

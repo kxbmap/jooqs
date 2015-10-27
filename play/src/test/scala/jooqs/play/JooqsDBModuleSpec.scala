@@ -7,7 +7,7 @@ import org.jooq.SQLDialect
 import org.jooq.conf.RenderKeywordStyle
 import play.api.test._
 
-class JooqDBModuleSpec extends PlaySpecification {
+class JooqsDBModuleSpec extends PlaySpecification {
 
   "JooqDBModule" should {
 
@@ -19,7 +19,7 @@ class JooqDBModuleSpec extends PlaySpecification {
         "db.other.url" -> "jdbc:h2:mem:other"
       )
     )) {
-      app.injector.instanceOf[JooqDBApi].databases must have size 2
+      app.injector.instanceOf[JooqsDBApi].databases must have size 2
       app.injector.instanceOf[DefaultComponent].url must_== "jdbc:h2:mem:default"
       app.injector.instanceOf[NamedDefaultComponent].url must_== "jdbc:h2:mem:default"
       app.injector.instanceOf[NamedOtherComponent].url must_== "jdbc:h2:mem:other"
@@ -31,14 +31,14 @@ class JooqDBModuleSpec extends PlaySpecification {
         "db.other.url" -> "jdbc:h2:mem:other"
       )
     )) {
-      app.injector.instanceOf[JooqDBApi].databases must have size 1
+      app.injector.instanceOf[JooqsDBApi].databases must have size 1
       app.injector.instanceOf[DefaultComponent] must throwA[com.google.inject.ConfigurationException]
       app.injector.instanceOf[NamedDefaultComponent] must throwA[com.google.inject.ConfigurationException]
       app.injector.instanceOf[NamedOtherComponent].url must_== "jdbc:h2:mem:other"
     }
 
     "not bind databases without configuration" in new WithApplication(FakeApplication()) {
-      app.injector.instanceOf[JooqDBApi].databases must beEmpty
+      app.injector.instanceOf[JooqsDBApi].databases must beEmpty
       app.injector.instanceOf[DefaultComponent] must throwA[com.google.inject.ConfigurationException]
       app.injector.instanceOf[NamedDefaultComponent] must throwA[com.google.inject.ConfigurationException]
       app.injector.instanceOf[NamedOtherComponent] must throwA[com.google.inject.ConfigurationException]
@@ -51,7 +51,7 @@ class JooqDBModuleSpec extends PlaySpecification {
         "db.other.url" -> "jdbc:h2:mem:other"
       )
     )) {
-      app.injector.instanceOf[JooqDBApi].databases must have size 1
+      app.injector.instanceOf[JooqsDBApi].databases must have size 1
       app.injector.instanceOf[DefaultComponent].url must_== "jdbc:h2:mem:other"
       app.injector.instanceOf[NamedOtherComponent].url must_== "jdbc:h2:mem:other"
       app.injector.instanceOf[NamedDefaultComponent] must throwA[com.google.inject.ConfigurationException]
@@ -64,7 +64,7 @@ class JooqDBModuleSpec extends PlaySpecification {
         "databases.default.url" -> "jdbc:h2:mem:default"
       )
     )) {
-      app.injector.instanceOf[JooqDBApi].databases must have size 1
+      app.injector.instanceOf[JooqsDBApi].databases must have size 1
       app.injector.instanceOf[DefaultComponent].url must_== "jdbc:h2:mem:default"
       app.injector.instanceOf[NamedDefaultComponent].url must_== "jdbc:h2:mem:default"
     }
