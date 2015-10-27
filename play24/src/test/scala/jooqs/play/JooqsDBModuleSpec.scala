@@ -9,7 +9,7 @@ import play.api.test._
 
 class JooqsDBModuleSpec extends PlaySpecification {
 
-  "JooqDBModule" should {
+  "JooqsDBModule" should {
 
     "bind databases by name" in new WithApplication(FakeApplication(
       additionalConfiguration = Map(

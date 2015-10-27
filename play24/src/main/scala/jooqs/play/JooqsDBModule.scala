@@ -51,9 +51,9 @@ trait JooqsDBComponent {
 @Singleton
 class JooqsDBApiProvider @Inject()(configuration: Configuration, dbApi: DBApi, lifecycle: ApplicationLifecycle) extends Provider[JooqsDBApi] {
   lazy val get: JooqsDBApi = {
-    val jooq = new DefaultJooqsDBApi(configuration.underlying, dbApi)
-    lifecycle.addStopHook(() => Future.successful(jooq.shutdown()))
-    jooq
+    val api = new DefaultJooqsDBApi(configuration.underlying, dbApi)
+    lifecycle.addStopHook(() => Future.successful(api.shutdown()))
+    api
   }
 }
 

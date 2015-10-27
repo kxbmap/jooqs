@@ -7,17 +7,20 @@ scala:
   - 2.11.7
   - 2.12.0-M3
 env:
-  - SBT_PROJECT=core
-  - SBT_PROJECT=config
-  - SBT_PROJECT=play
+  - SBT_MODULE=core
+  - SBT_MODULE=config
+  - SBT_MODULE=play24
+  - SBT_MODULE=play25
 
 matrix:
   exclude:
     - scala: 2.12.0-M3
-      env: SBT_PROJECT=play
+      env: SBT_MODULE=play24
+    - scala: 2.12.0-M3
+      env: SBT_MODULE=play25
 
 script:
-  - sbt ++$TRAVIS_SCALA_VERSION $SBT_PROJECT/test
+  - sbt ++$TRAVIS_SCALA_VERSION $SBT_MODULE/test
 
   # Tricks to avoid unnecessary cache updates
   - find $HOME/.sbt -name "*.lock" | xargs rm
