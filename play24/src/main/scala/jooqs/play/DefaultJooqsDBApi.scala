@@ -30,6 +30,6 @@ class DefaultJooqsDBApi(config: Config, dbApi: DBApi) extends JooqsDBApi {
     databaseByName.getOrElse(name, throw new IllegalArgumentException(s"Could not find database for $name"))
 
   def shutdown(): Unit = {
-    databases.foreach(_.shutdown())
+    databases.foreach(_.close())
   }
 }

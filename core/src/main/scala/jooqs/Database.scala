@@ -8,7 +8,7 @@ import org.jooq.conf.Settings
 import org.jooq.impl.DSL
 import org.jooq.{ConnectionProvider, DSLContext, SQLDialect}
 
-trait Database extends SimpleScope {
+trait Database extends SimpleScope with AutoCloseable {
 
   def withTransaction[T: TxBoundary](block: TxDBSession => T): T
 
@@ -16,7 +16,6 @@ trait Database extends SimpleScope {
 
   def getSession(autoCommit: Boolean = true): UnmanagedDBSession
 
-  def shutdown(): Unit
 }
 
 object Database {
