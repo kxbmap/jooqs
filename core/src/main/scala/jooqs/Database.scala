@@ -6,7 +6,7 @@ import javax.sql.DataSource
 import jooqs.impl.DefaultDatabase
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
-import org.jooq.{ConnectionProvider, DSLContext, SQLDialect}
+import org.jooq.{Configuration, ConnectionProvider, DSLContext, SQLDialect}
 
 trait Database extends SimpleScope with AutoCloseable {
 
@@ -19,6 +19,8 @@ trait Database extends SimpleScope with AutoCloseable {
 }
 
 object Database {
+
+  def apply(configuration: Configuration): Database = Database(DSL.using(configuration))
 
   def apply(url: String): Database = Database(DSL.using(url))
 
