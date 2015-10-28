@@ -33,5 +33,8 @@ private[jooqs] class DefaultDatabase(dsl: DSLContext) extends Database {
      conn
    }
 
-   def shutdown(): Unit = {}
+   def shutdown(): Unit = {
+     dsl.close()
+   }
+
  }

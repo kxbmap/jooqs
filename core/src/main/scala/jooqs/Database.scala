@@ -7,7 +7,6 @@ import jooqs.impl.DefaultDatabase
 import org.jooq.conf.Settings
 import org.jooq.impl.DSL
 import org.jooq.{ConnectionProvider, DSLContext, SQLDialect}
-import scala.util.control.NonFatal
 
 trait Database extends SimpleScope {
 
@@ -22,11 +21,11 @@ trait Database extends SimpleScope {
 
 object Database {
 
-  def apply(url: String): Database = closeOnShutdown(DSL.using(url))
+  def apply(url: String): Database = Database(DSL.using(url))
 
-  def apply(url: String, user: String, password: String): Database = closeOnShutdown(DSL.using(url, user, password))
+  def apply(url: String, user: String, password: String): Database = Database(DSL.using(url, user, password))
 
-  def apply(url: String, properties: Properties): Database = closeOnShutdown(DSL.using(url, properties))
+  def apply(url: String, properties: Properties): Database = Database(DSL.using(url, properties))
 
   def apply(connection: Connection): Database = Database(DSL.using(connection))
 
@@ -45,18 +44,5 @@ object Database {
   def apply(connectionProvider: ConnectionProvider, dialect: SQLDialect, settings: Settings): Database = Database(DSL.using(connectionProvider, dialect, settings))
 
   private def apply(ctx: DSLContext): Database = new DefaultDatabase(ctx)
-
-  private def closeOnShutdown(ctx: DSLContext): Database = new DefaultDatabase(ctx) with CloseOnShutdown
-
-  private trait CloseOnShutdown extends Database {
-    abstract override def shutdown(): Unit = {
-      try {
-        configuration.connectionProvider().acquire().close()
-      } catch {
-        case NonFatal(_) =>
-      }
-      super.shutdown()
-    }
-  }
 
 }
