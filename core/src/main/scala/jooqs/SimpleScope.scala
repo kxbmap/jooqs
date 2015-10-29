@@ -7,13 +7,13 @@ trait SimpleScope extends Scope {
 
   def configuration: Configuration
 
-  def data: java.util.Map[AnyRef, AnyRef] = configuration.data()
-
   def settings: Settings = configuration.settings()
 
   def dialect: SQLDialect = configuration.dialect()
 
   def family: SQLDialect = dialect.family()
+
+  lazy val data: java.util.Map[AnyRef, AnyRef] = new java.util.HashMap()
 
   def data(key: AnyRef): AnyRef = data.get(key)
 
