@@ -68,18 +68,17 @@ object `package` {
     def withTransaction[T: TxBoundary](body: Configuration => T): T = {
       val ctx = new DefaultTransactionContext(self.configuration.derive())
       val provider = ctx.configuration.transactionProvider()
-      val result = try {
-        provider.begin(ctx)
-        body(ctx.configuration)
-      } catch {
-        case e: ControlThrowable =>
-          TxBoundary.commit(provider, ctx)
-          throw e
+      provider.begin(ctx)
+      val result =
+        try body(ctx.configuration) catch {
+          case e: ControlThrowable =>
+            TxBoundary.commit(provider, ctx)
+            throw e
 
-        case e: Throwable =>
-          TxBoundary.rollback(e, provider, ctx)
-          throw e
-      }
+          case e: Throwable =>
+            TxBoundary.rollback(e, provider, ctx)
+            throw e
+        }
       TxBoundary[T].finish(result, provider, ctx)
     }
 
