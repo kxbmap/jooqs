@@ -12,42 +12,42 @@ object `package` {
   def dsl(implicit session: DBSession): DSLContext =
     session.dsl
 
-  def savepoint[T: TxBoundary](block: => T)(implicit session: TxDBSession): T =
+  def savepoint[A: TxBoundary](block: => A)(implicit session: TxDBSession): A =
     session.savepoint(block)
 
 
-  implicit class PrimitiveTypeOps[T](private val self: T) extends AnyVal {
-    def box[U](implicit b: Box[T, U]): U =
+  implicit class PrimitiveTypeOps[A](private val self: A) extends AnyVal {
+    def box[B](implicit b: Box[A, B]): B =
       b.box(self)
   }
 
-  implicit class PrimitiveTypeOptionOps[T](private val self: Option[T]) extends AnyVal {
-    def box[U](implicit b: Box[T, U]): Option[U] =
+  implicit class PrimitiveTypeOptionOps[A](private val self: Option[A]) extends AnyVal {
+    def box[B](implicit b: Box[A, B]): Option[B] =
       self.map(b.box)
   }
 
 
   implicit class RecordOps(private val self: Record) extends AnyVal {
 
-    def get[T, U](field: Field[T])(implicit u: Unbox[T, U]): U =
+    def get[A, B](field: Field[A])(implicit u: Unbox[A, B]): B =
       u.unbox(self.getValue(field))
 
-    def getOpt[T, U](field: Field[T])(implicit u: Unbox[T, U]): Option[U] =
+    def getOpt[A, B](field: Field[A])(implicit u: Unbox[A, B]): Option[B] =
       Option(self.getValue(field)).map(u.unbox)
   }
 
 
-  implicit class QueryPartOps[Q <: QueryPart](private val self: Q) extends AnyVal {
+  implicit class QueryPartOps[A <: QueryPart](private val self: A) extends AnyVal {
 
-    def map[R](f: Q => R): R =
+    def map[B](f: A => B): B =
       f(self)
 
-    def mapIf[R >: Q](cond: Boolean, f: Q => R): R =
+    def mapIf[B >: A](cond: Boolean, f: A => B): B =
       if (cond) f(self) else self
   }
 
 
-  implicit class SelectSelectStepOps[R <: Record](private val self: SelectSelectStep[R]) extends AnyVal {
+  implicit class SelectSelectStepOps[A <: Record](private val self: SelectSelectStep[A]) extends AnyVal {
 
     def select(fields: Array[Field[_]]): SelectSelectStep[Record] =
       self.select(fields: _*)
@@ -65,7 +65,7 @@ object `package` {
     def select(fields: Seq[Field[_]]): SelectSelectStep[Record] =
       self.select(fields: _*)
 
-    def withTransaction[T: TxBoundary](body: Configuration => T): T = {
+    def withTransaction[A: TxBoundary](body: Configuration => A): A = {
       val ctx = new DefaultTransactionContext(self.configuration.derive())
       val provider = ctx.configuration.transactionProvider()
       provider.begin(ctx)
@@ -79,7 +79,7 @@ object `package` {
             TxBoundary.rollback(e, provider, ctx)
             throw e
         }
-      TxBoundary[T].finish(result, provider, ctx)
+      TxBoundary[A].finish(result, provider, ctx)
     }
 
   }
@@ -144,7 +144,7 @@ object `package` {
   //// end:ConditionOps
 
   //// start:FieldOps
-  implicit class FieldOps[T](private val self: Field[T]) extends AnyVal {
+  implicit class FieldOps[A](private val self: Field[A]) extends AnyVal {
 
     ////
 
@@ -156,188 +156,188 @@ object `package` {
 
     ////
 
-    def ===(other: T): Condition =
+    def ===(other: A): Condition =
       self.equal(other)
 
-    def ===(other: Field[T]): Condition =
+    def ===(other: Field[A]): Condition =
       self.equal(other)
 
-    def ===(other: Select[_ <: Record1[T]]): Condition =
+    def ===(other: Select[_ <: Record1[A]]): Condition =
       self.equal(other)
 
-    def ===(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+    def ===(other: QuantifiedSelect[_ <: Record1[A]]): Condition =
       self.equal(other)
 
-    def =!=(other: T): Condition =
+    def =!=(other: A): Condition =
       self.notEqual(other)
 
-    def =!=(other: Field[T]): Condition =
+    def =!=(other: Field[A]): Condition =
       self.notEqual(other)
 
-    def =!=(other: Select[_ <: Record1[T]]): Condition =
+    def =!=(other: Select[_ <: Record1[A]]): Condition =
       self.notEqual(other)
 
-    def =!=(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+    def =!=(other: QuantifiedSelect[_ <: Record1[A]]): Condition =
       self.notEqual(other)
 
-    def <>(other: T): Condition =
+    def <>(other: A): Condition =
       self.notEqual(other)
 
-    def <>(other: Field[T]): Condition =
+    def <>(other: Field[A]): Condition =
       self.notEqual(other)
 
-    def <>(other: Select[_ <: Record1[T]]): Condition =
+    def <>(other: Select[_ <: Record1[A]]): Condition =
       self.notEqual(other)
 
-    def <>(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+    def <>(other: QuantifiedSelect[_ <: Record1[A]]): Condition =
       self.notEqual(other)
 
-    def <(other: T): Condition =
+    def <(other: A): Condition =
       self.lessThan(other)
 
-    def <(other: Field[T]): Condition =
+    def <(other: Field[A]): Condition =
       self.lessThan(other)
 
-    def <(other: Select[_ <: Record1[T]]): Condition =
+    def <(other: Select[_ <: Record1[A]]): Condition =
       self.lessThan(other)
 
-    def <(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+    def <(other: QuantifiedSelect[_ <: Record1[A]]): Condition =
       self.lessThan(other)
 
-    def <=(other: T): Condition =
+    def <=(other: A): Condition =
       self.lessOrEqual(other)
 
-    def <=(other: Field[T]): Condition =
+    def <=(other: Field[A]): Condition =
       self.lessOrEqual(other)
 
-    def <=(other: Select[_ <: Record1[T]]): Condition =
+    def <=(other: Select[_ <: Record1[A]]): Condition =
       self.lessOrEqual(other)
 
-    def <=(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+    def <=(other: QuantifiedSelect[_ <: Record1[A]]): Condition =
       self.lessOrEqual(other)
 
-    def >(other: T): Condition =
+    def >(other: A): Condition =
       self.greaterThan(other)
 
-    def >(other: Field[T]): Condition =
+    def >(other: Field[A]): Condition =
       self.greaterThan(other)
 
-    def >(other: Select[_ <: Record1[T]]): Condition =
+    def >(other: Select[_ <: Record1[A]]): Condition =
       self.greaterThan(other)
 
-    def >(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+    def >(other: QuantifiedSelect[_ <: Record1[A]]): Condition =
       self.greaterThan(other)
 
-    def >=(other: T): Condition =
+    def >=(other: A): Condition =
       self.greaterOrEqual(other)
 
-    def >=(other: Field[T]): Condition =
+    def >=(other: Field[A]): Condition =
       self.greaterOrEqual(other)
 
-    def >=(other: Select[_ <: Record1[T]]): Condition =
+    def >=(other: Select[_ <: Record1[A]]): Condition =
       self.greaterOrEqual(other)
 
-    def >=(other: QuantifiedSelect[_ <: Record1[T]]): Condition =
+    def >=(other: QuantifiedSelect[_ <: Record1[A]]): Condition =
       self.greaterOrEqual(other)
 
-    def <=>(other: T): Condition =
+    def <=>(other: A): Condition =
       self.isNotDistinctFrom(other)
 
-    def <=>(other: Field[T]): Condition =
+    def <=>(other: Field[A]): Condition =
       self.isNotDistinctFrom(other)
   }
 
   //// end:FieldOps
 
   //// start:NumberFieldOps
-  implicit class NumberFieldOps[T <: Number](private val self: Field[T]) extends AnyVal {
+  implicit class NumberFieldOps[A <: Number](private val self: Field[A]) extends AnyVal {
 
     ////
 
     ////
 
-    def unary_- : Field[T] =
+    def unary_- : Field[A] =
       self.neg()
 
-    def +(other: Number): Field[T] =
+    def +(other: Number): Field[A] =
       self.add(other)
 
-    def +(other: Field[_ <: Number]): Field[T] =
+    def +(other: Field[_ <: Number]): Field[A] =
       self.add(other)
 
-    def -(other: Number): Field[T] =
+    def -(other: Number): Field[A] =
       self.sub(other)
 
-    def -(other: Field[_ <: Number]): Field[T] =
+    def -(other: Field[_ <: Number]): Field[A] =
       self.sub(other)
 
-    def *(other: Number): Field[T] =
+    def *(other: Number): Field[A] =
       self.mul(other)
 
-    def *(other: Field[_ <: Number]): Field[T] =
+    def *(other: Field[_ <: Number]): Field[A] =
       self.mul(other)
 
-    def /(other: Number): Field[T] =
+    def /(other: Number): Field[A] =
       self.div(other)
 
-    def /(other: Field[_ <: Number]): Field[T] =
+    def /(other: Field[_ <: Number]): Field[A] =
       self.div(other)
 
-    def %(other: Number): Field[T] =
+    def %(other: Number): Field[A] =
       self.mod(other)
 
-    def %(other: Field[_ <: Number]): Field[T] =
+    def %(other: Field[_ <: Number]): Field[A] =
       self.mod(other)
 
-    def unary_~ : Field[T] =
+    def unary_~ : Field[A] =
       DSL.bitNot(self)
 
-    def &(other: T): Field[T] =
+    def &(other: A): Field[A] =
       DSL.bitAnd(self, other)
 
-    def &(other: Field[T]): Field[T] =
+    def &(other: Field[A]): Field[A] =
       DSL.bitAnd(self, other)
 
-    def |(other: T): Field[T] =
+    def |(other: A): Field[A] =
       DSL.bitOr(self, other)
 
-    def |(other: Field[T]): Field[T] =
+    def |(other: Field[A]): Field[A] =
       DSL.bitOr(self, other)
 
-    def ^(other: T): Field[T] =
+    def ^(other: A): Field[A] =
       DSL.bitXor(self, other)
 
-    def ^(other: Field[T]): Field[T] =
+    def ^(other: Field[A]): Field[A] =
       DSL.bitXor(self, other)
 
-    def ~&(other: T): Field[T] =
+    def ~&(other: A): Field[A] =
       DSL.bitNand(self, other)
 
-    def ~&(other: Field[T]): Field[T] =
+    def ~&(other: Field[A]): Field[A] =
       DSL.bitNand(self, other)
 
-    def ~|(other: T): Field[T] =
+    def ~|(other: A): Field[A] =
       DSL.bitNor(self, other)
 
-    def ~|(other: Field[T]): Field[T] =
+    def ~|(other: Field[A]): Field[A] =
       DSL.bitNor(self, other)
 
-    def ~^(other: T): Field[T] =
+    def ~^(other: A): Field[A] =
       DSL.bitXNor(self, other)
 
-    def ~^(other: Field[T]): Field[T] =
+    def ~^(other: Field[A]): Field[A] =
       DSL.bitXNor(self, other)
 
-    def <<(other: T): Field[T] =
+    def <<(other: A): Field[A] =
       DSL.shl(self, other)
 
-    def <<(other: Field[T]): Field[T] =
+    def <<(other: Field[A]): Field[A] =
       DSL.shl(self, other)
 
-    def >>(other: T): Field[T] =
+    def >>(other: A): Field[A] =
       DSL.shr(self, other)
 
-    def >>(other: Field[T]): Field[T] =
+    def >>(other: Field[A]): Field[A] =
       DSL.shr(self, other)
   }
 
@@ -410,7 +410,7 @@ object `package` {
   //// end:TimestampFieldOps
 
   //// start:Record1Ops
-  implicit class Record1Ops[T1](private val self: Record1[T1]) extends AnyVal {
+  implicit class Record1Ops[A1](private val self: Record1[A1]) extends AnyVal {
 
     import self._
 
@@ -418,14 +418,14 @@ object `package` {
 
     ////
 
-    def toTuple: Tuple1[T1] =
+    def toTuple: Tuple1[A1] =
       Tuple1(value1)
   }
 
   //// end:Record1Ops
 
   //// start:Record2Ops
-  implicit class Record2Ops[T1, T2](private val self: Record2[T1, T2]) extends AnyVal {
+  implicit class Record2Ops[A1, A2](private val self: Record2[A1, A2]) extends AnyVal {
 
     import self._
 
@@ -433,14 +433,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2) =
+    def toTuple: (A1, A2) =
       (value1, value2)
   }
 
   //// end:Record2Ops
 
   //// start:Record3Ops
-  implicit class Record3Ops[T1, T2, T3](private val self: Record3[T1, T2, T3]) extends AnyVal {
+  implicit class Record3Ops[A1, A2, A3](private val self: Record3[A1, A2, A3]) extends AnyVal {
 
     import self._
 
@@ -448,14 +448,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3) =
+    def toTuple: (A1, A2, A3) =
       (value1, value2, value3)
   }
 
   //// end:Record3Ops
 
   //// start:Record4Ops
-  implicit class Record4Ops[T1, T2, T3, T4](private val self: Record4[T1, T2, T3, T4]) extends AnyVal {
+  implicit class Record4Ops[A1, A2, A3, A4](private val self: Record4[A1, A2, A3, A4]) extends AnyVal {
 
     import self._
 
@@ -463,14 +463,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4) =
+    def toTuple: (A1, A2, A3, A4) =
       (value1, value2, value3, value4)
   }
 
   //// end:Record4Ops
 
   //// start:Record5Ops
-  implicit class Record5Ops[T1, T2, T3, T4, T5](private val self: Record5[T1, T2, T3, T4, T5]) extends AnyVal {
+  implicit class Record5Ops[A1, A2, A3, A4, A5](private val self: Record5[A1, A2, A3, A4, A5]) extends AnyVal {
 
     import self._
 
@@ -478,14 +478,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5) =
+    def toTuple: (A1, A2, A3, A4, A5) =
       (value1, value2, value3, value4, value5)
   }
 
   //// end:Record5Ops
 
   //// start:Record6Ops
-  implicit class Record6Ops[T1, T2, T3, T4, T5, T6](private val self: Record6[T1, T2, T3, T4, T5, T6]) extends AnyVal {
+  implicit class Record6Ops[A1, A2, A3, A4, A5, A6](private val self: Record6[A1, A2, A3, A4, A5, A6]) extends AnyVal {
 
     import self._
 
@@ -493,14 +493,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6) =
+    def toTuple: (A1, A2, A3, A4, A5, A6) =
       (value1, value2, value3, value4, value5, value6)
   }
 
   //// end:Record6Ops
 
   //// start:Record7Ops
-  implicit class Record7Ops[T1, T2, T3, T4, T5, T6, T7](private val self: Record7[T1, T2, T3, T4, T5, T6, T7]) extends AnyVal {
+  implicit class Record7Ops[A1, A2, A3, A4, A5, A6, A7](private val self: Record7[A1, A2, A3, A4, A5, A6, A7]) extends AnyVal {
 
     import self._
 
@@ -508,14 +508,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7) =
       (value1, value2, value3, value4, value5, value6, value7)
   }
 
   //// end:Record7Ops
 
   //// start:Record8Ops
-  implicit class Record8Ops[T1, T2, T3, T4, T5, T6, T7, T8](private val self: Record8[T1, T2, T3, T4, T5, T6, T7, T8]) extends AnyVal {
+  implicit class Record8Ops[A1, A2, A3, A4, A5, A6, A7, A8](private val self: Record8[A1, A2, A3, A4, A5, A6, A7, A8]) extends AnyVal {
 
     import self._
 
@@ -523,14 +523,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8) =
       (value1, value2, value3, value4, value5, value6, value7, value8)
   }
 
   //// end:Record8Ops
 
   //// start:Record9Ops
-  implicit class Record9Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9](private val self: Record9[T1, T2, T3, T4, T5, T6, T7, T8, T9]) extends AnyVal {
+  implicit class Record9Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9](private val self: Record9[A1, A2, A3, A4, A5, A6, A7, A8, A9]) extends AnyVal {
 
     import self._
 
@@ -538,14 +538,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9)
   }
 
   //// end:Record9Ops
 
   //// start:Record10Ops
-  implicit class Record10Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](private val self: Record10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10]) extends AnyVal {
+  implicit class Record10Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10](private val self: Record10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10]) extends AnyVal {
 
     import self._
 
@@ -553,14 +553,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10)
   }
 
   //// end:Record10Ops
 
   //// start:Record11Ops
-  implicit class Record11Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](private val self: Record11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11]) extends AnyVal {
+  implicit class Record11Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11](private val self: Record11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11]) extends AnyVal {
 
     import self._
 
@@ -568,14 +568,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11)
   }
 
   //// end:Record11Ops
 
   //// start:Record12Ops
-  implicit class Record12Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](private val self: Record12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12]) extends AnyVal {
+  implicit class Record12Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12](private val self: Record12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12]) extends AnyVal {
 
     import self._
 
@@ -583,14 +583,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12)
   }
 
   //// end:Record12Ops
 
   //// start:Record13Ops
-  implicit class Record13Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](private val self: Record13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13]) extends AnyVal {
+  implicit class Record13Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13](private val self: Record13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13]) extends AnyVal {
 
     import self._
 
@@ -598,14 +598,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13)
   }
 
   //// end:Record13Ops
 
   //// start:Record14Ops
-  implicit class Record14Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](private val self: Record14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14]) extends AnyVal {
+  implicit class Record14Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14](private val self: Record14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14]) extends AnyVal {
 
     import self._
 
@@ -613,14 +613,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14)
   }
 
   //// end:Record14Ops
 
   //// start:Record15Ops
-  implicit class Record15Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](private val self: Record15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15]) extends AnyVal {
+  implicit class Record15Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15](private val self: Record15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15]) extends AnyVal {
 
     import self._
 
@@ -628,14 +628,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15)
   }
 
   //// end:Record15Ops
 
   //// start:Record16Ops
-  implicit class Record16Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](private val self: Record16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16]) extends AnyVal {
+  implicit class Record16Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16](private val self: Record16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16]) extends AnyVal {
 
     import self._
 
@@ -643,14 +643,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16)
   }
 
   //// end:Record16Ops
 
   //// start:Record17Ops
-  implicit class Record17Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](private val self: Record17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17]) extends AnyVal {
+  implicit class Record17Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17](private val self: Record17[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17]) extends AnyVal {
 
     import self._
 
@@ -658,14 +658,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17)
   }
 
   //// end:Record17Ops
 
   //// start:Record18Ops
-  implicit class Record18Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](private val self: Record18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18]) extends AnyVal {
+  implicit class Record18Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18](private val self: Record18[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18]) extends AnyVal {
 
     import self._
 
@@ -673,14 +673,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18)
   }
 
   //// end:Record18Ops
 
   //// start:Record19Ops
-  implicit class Record19Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](private val self: Record19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19]) extends AnyVal {
+  implicit class Record19Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19](private val self: Record19[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19]) extends AnyVal {
 
     import self._
 
@@ -688,14 +688,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19)
   }
 
   //// end:Record19Ops
 
   //// start:Record20Ops
-  implicit class Record20Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](private val self: Record20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20]) extends AnyVal {
+  implicit class Record20Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20](private val self: Record20[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20]) extends AnyVal {
 
     import self._
 
@@ -703,14 +703,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20)
   }
 
   //// end:Record20Ops
 
   //// start:Record21Ops
-  implicit class Record21Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](private val self: Record21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21]) extends AnyVal {
+  implicit class Record21Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21](private val self: Record21[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21]) extends AnyVal {
 
     import self._
 
@@ -718,14 +718,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21)
   }
 
   //// end:Record21Ops
 
   //// start:Record22Ops
-  implicit class Record22Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](private val self: Record22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22]) extends AnyVal {
+  implicit class Record22Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22](private val self: Record22[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22]) extends AnyVal {
 
     import self._
 
@@ -733,14 +733,14 @@ object `package` {
 
     ////
 
-    def toTuple: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22) =
+    def toTuple: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22) =
       (value1, value2, value3, value4, value5, value6, value7, value8, value9, value10, value11, value12, value13, value14, value15, value16, value17, value18, value19, value20, value21, value22)
   }
 
   //// end:Record22Ops
 
   //// start:Tuple1Ops
-  implicit class Tuple1Ops[T1](private val self: Tuple1[T1]) extends AnyVal {
+  implicit class Tuple1Ops[A1](private val self: Tuple1[A1]) extends AnyVal {
 
     import self._
 
@@ -748,14 +748,14 @@ object `package` {
 
     ////
 
-    def row: Row1[T1] =
+    def row: Row1[A1] =
       DSL.row(_1)
   }
 
   //// end:Tuple1Ops
 
   //// start:Tuple2Ops
-  implicit class Tuple2Ops[T1, T2](private val self: (T1, T2)) extends AnyVal {
+  implicit class Tuple2Ops[A1, A2](private val self: (A1, A2)) extends AnyVal {
 
     import self._
 
@@ -763,14 +763,14 @@ object `package` {
 
     ////
 
-    def row: Row2[T1, T2] =
+    def row: Row2[A1, A2] =
       DSL.row(_1, _2)
   }
 
   //// end:Tuple2Ops
 
   //// start:Tuple3Ops
-  implicit class Tuple3Ops[T1, T2, T3](private val self: (T1, T2, T3)) extends AnyVal {
+  implicit class Tuple3Ops[A1, A2, A3](private val self: (A1, A2, A3)) extends AnyVal {
 
     import self._
 
@@ -778,14 +778,14 @@ object `package` {
 
     ////
 
-    def row: Row3[T1, T2, T3] =
+    def row: Row3[A1, A2, A3] =
       DSL.row(_1, _2, _3)
   }
 
   //// end:Tuple3Ops
 
   //// start:Tuple4Ops
-  implicit class Tuple4Ops[T1, T2, T3, T4](private val self: (T1, T2, T3, T4)) extends AnyVal {
+  implicit class Tuple4Ops[A1, A2, A3, A4](private val self: (A1, A2, A3, A4)) extends AnyVal {
 
     import self._
 
@@ -793,14 +793,14 @@ object `package` {
 
     ////
 
-    def row: Row4[T1, T2, T3, T4] =
+    def row: Row4[A1, A2, A3, A4] =
       DSL.row(_1, _2, _3, _4)
   }
 
   //// end:Tuple4Ops
 
   //// start:Tuple5Ops
-  implicit class Tuple5Ops[T1, T2, T3, T4, T5](private val self: (T1, T2, T3, T4, T5)) extends AnyVal {
+  implicit class Tuple5Ops[A1, A2, A3, A4, A5](private val self: (A1, A2, A3, A4, A5)) extends AnyVal {
 
     import self._
 
@@ -808,14 +808,14 @@ object `package` {
 
     ////
 
-    def row: Row5[T1, T2, T3, T4, T5] =
+    def row: Row5[A1, A2, A3, A4, A5] =
       DSL.row(_1, _2, _3, _4, _5)
   }
 
   //// end:Tuple5Ops
 
   //// start:Tuple6Ops
-  implicit class Tuple6Ops[T1, T2, T3, T4, T5, T6](private val self: (T1, T2, T3, T4, T5, T6)) extends AnyVal {
+  implicit class Tuple6Ops[A1, A2, A3, A4, A5, A6](private val self: (A1, A2, A3, A4, A5, A6)) extends AnyVal {
 
     import self._
 
@@ -823,14 +823,14 @@ object `package` {
 
     ////
 
-    def row: Row6[T1, T2, T3, T4, T5, T6] =
+    def row: Row6[A1, A2, A3, A4, A5, A6] =
       DSL.row(_1, _2, _3, _4, _5, _6)
   }
 
   //// end:Tuple6Ops
 
   //// start:Tuple7Ops
-  implicit class Tuple7Ops[T1, T2, T3, T4, T5, T6, T7](private val self: (T1, T2, T3, T4, T5, T6, T7)) extends AnyVal {
+  implicit class Tuple7Ops[A1, A2, A3, A4, A5, A6, A7](private val self: (A1, A2, A3, A4, A5, A6, A7)) extends AnyVal {
 
     import self._
 
@@ -838,14 +838,14 @@ object `package` {
 
     ////
 
-    def row: Row7[T1, T2, T3, T4, T5, T6, T7] =
+    def row: Row7[A1, A2, A3, A4, A5, A6, A7] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7)
   }
 
   //// end:Tuple7Ops
 
   //// start:Tuple8Ops
-  implicit class Tuple8Ops[T1, T2, T3, T4, T5, T6, T7, T8](private val self: (T1, T2, T3, T4, T5, T6, T7, T8)) extends AnyVal {
+  implicit class Tuple8Ops[A1, A2, A3, A4, A5, A6, A7, A8](private val self: (A1, A2, A3, A4, A5, A6, A7, A8)) extends AnyVal {
 
     import self._
 
@@ -853,14 +853,14 @@ object `package` {
 
     ////
 
-    def row: Row8[T1, T2, T3, T4, T5, T6, T7, T8] =
+    def row: Row8[A1, A2, A3, A4, A5, A6, A7, A8] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8)
   }
 
   //// end:Tuple8Ops
 
   //// start:Tuple9Ops
-  implicit class Tuple9Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9)) extends AnyVal {
+  implicit class Tuple9Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9)) extends AnyVal {
 
     import self._
 
@@ -868,14 +868,14 @@ object `package` {
 
     ////
 
-    def row: Row9[T1, T2, T3, T4, T5, T6, T7, T8, T9] =
+    def row: Row9[A1, A2, A3, A4, A5, A6, A7, A8, A9] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9)
   }
 
   //// end:Tuple9Ops
 
   //// start:Tuple10Ops
-  implicit class Tuple10Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10)) extends AnyVal {
+  implicit class Tuple10Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)) extends AnyVal {
 
     import self._
 
@@ -883,14 +883,14 @@ object `package` {
 
     ////
 
-    def row: Row10[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10] =
+    def row: Row10[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10)
   }
 
   //// end:Tuple10Ops
 
   //// start:Tuple11Ops
-  implicit class Tuple11Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11)) extends AnyVal {
+  implicit class Tuple11Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11)) extends AnyVal {
 
     import self._
 
@@ -898,14 +898,14 @@ object `package` {
 
     ////
 
-    def row: Row11[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11] =
+    def row: Row11[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11)
   }
 
   //// end:Tuple11Ops
 
   //// start:Tuple12Ops
-  implicit class Tuple12Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12)) extends AnyVal {
+  implicit class Tuple12Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12)) extends AnyVal {
 
     import self._
 
@@ -913,14 +913,14 @@ object `package` {
 
     ////
 
-    def row: Row12[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12] =
+    def row: Row12[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12)
   }
 
   //// end:Tuple12Ops
 
   //// start:Tuple13Ops
-  implicit class Tuple13Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13)) extends AnyVal {
+  implicit class Tuple13Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13)) extends AnyVal {
 
     import self._
 
@@ -928,14 +928,14 @@ object `package` {
 
     ////
 
-    def row: Row13[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13] =
+    def row: Row13[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13)
   }
 
   //// end:Tuple13Ops
 
   //// start:Tuple14Ops
-  implicit class Tuple14Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14)) extends AnyVal {
+  implicit class Tuple14Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14)) extends AnyVal {
 
     import self._
 
@@ -943,14 +943,14 @@ object `package` {
 
     ////
 
-    def row: Row14[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14] =
+    def row: Row14[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14)
   }
 
   //// end:Tuple14Ops
 
   //// start:Tuple15Ops
-  implicit class Tuple15Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15)) extends AnyVal {
+  implicit class Tuple15Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15)) extends AnyVal {
 
     import self._
 
@@ -958,14 +958,14 @@ object `package` {
 
     ////
 
-    def row: Row15[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15] =
+    def row: Row15[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15)
   }
 
   //// end:Tuple15Ops
 
   //// start:Tuple16Ops
-  implicit class Tuple16Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16)) extends AnyVal {
+  implicit class Tuple16Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16)) extends AnyVal {
 
     import self._
 
@@ -973,14 +973,14 @@ object `package` {
 
     ////
 
-    def row: Row16[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16] =
+    def row: Row16[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16)
   }
 
   //// end:Tuple16Ops
 
   //// start:Tuple17Ops
-  implicit class Tuple17Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17)) extends AnyVal {
+  implicit class Tuple17Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17)) extends AnyVal {
 
     import self._
 
@@ -988,14 +988,14 @@ object `package` {
 
     ////
 
-    def row: Row17[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17] =
+    def row: Row17[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17)
   }
 
   //// end:Tuple17Ops
 
   //// start:Tuple18Ops
-  implicit class Tuple18Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18)) extends AnyVal {
+  implicit class Tuple18Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18)) extends AnyVal {
 
     import self._
 
@@ -1003,14 +1003,14 @@ object `package` {
 
     ////
 
-    def row: Row18[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18] =
+    def row: Row18[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18)
   }
 
   //// end:Tuple18Ops
 
   //// start:Tuple19Ops
-  implicit class Tuple19Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19)) extends AnyVal {
+  implicit class Tuple19Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19)) extends AnyVal {
 
     import self._
 
@@ -1018,14 +1018,14 @@ object `package` {
 
     ////
 
-    def row: Row19[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19] =
+    def row: Row19[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19)
   }
 
   //// end:Tuple19Ops
 
   //// start:Tuple20Ops
-  implicit class Tuple20Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20)) extends AnyVal {
+  implicit class Tuple20Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20)) extends AnyVal {
 
     import self._
 
@@ -1033,14 +1033,14 @@ object `package` {
 
     ////
 
-    def row: Row20[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20] =
+    def row: Row20[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20)
   }
 
   //// end:Tuple20Ops
 
   //// start:Tuple21Ops
-  implicit class Tuple21Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21)) extends AnyVal {
+  implicit class Tuple21Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21)) extends AnyVal {
 
     import self._
 
@@ -1048,14 +1048,14 @@ object `package` {
 
     ////
 
-    def row: Row21[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21] =
+    def row: Row21[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21)
   }
 
   //// end:Tuple21Ops
 
   //// start:Tuple22Ops
-  implicit class Tuple22Ops[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22](private val self: (T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22)) extends AnyVal {
+  implicit class Tuple22Ops[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22](private val self: (A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22)) extends AnyVal {
 
     import self._
 
@@ -1063,7 +1063,7 @@ object `package` {
 
     ////
 
-    def row: Row22[T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15, T16, T17, T18, T19, T20, T21, T22] =
+    def row: Row22[A1, A2, A3, A4, A5, A6, A7, A8, A9, A10, A11, A12, A13, A14, A15, A16, A17, A18, A19, A20, A21, A22] =
       DSL.row(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22)
   }
 

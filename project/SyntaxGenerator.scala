@@ -101,9 +101,9 @@ object SyntaxGenerator extends AutoPlugin {
     }.toMap
 
     classes.iterator.map { c =>
-      s"""//// start:${c.name}
-         |${oldSources.get(c.name).fold(c.render)(c.updateSource)}
-         |//// end:${c.name}
+      s"""//// start:${c.tpe.name}
+         |${oldSources.get(c.tpe.name).fold(c.render)(c.updateSource)}
+         |//// end:${c.tpe.name}
          |""".stripMargin.indent
     }.addString(sb, "\n\n")
   }
@@ -111,26 +111,22 @@ object SyntaxGenerator extends AutoPlugin {
 
   abstract class OpsClass {
 
-    def name: String = tpe.takeWhile(_ != '[')
+    def tpe: Type
 
-    def tpe: String
-
-    def self: String = "self"
-
-    def selfTpe: String
+    def self: Arg
 
     def importSelf: Boolean = false
 
-    def members: Seq[String]
+    def methods: Seq[Method]
 
-    lazy val render: String =
-      s"""implicit class $tpe(private val $self: $selfTpe) extends AnyVal {
-         |${(if (importSelf) s"\nimport $self._\n\n" else "").indent}
+    def render: String =
+      s"""implicit class ${tpe.render}(private val ${self.render}) extends AnyVal {
+         |${(if (importSelf) s"\nimport ${self.name}._\n\n" else "").indent}
          |  ////
          |
          |  ////
          |
-         |${members.mkString("\n").indent}
+         |${methods.map(_.render).mkString("\n").indent}
          |}
          |""".stripMargin
 
@@ -152,51 +148,110 @@ object SyntaxGenerator extends AutoPlugin {
     }
   }
 
+  sealed trait Type {
+    def name: String
+
+    def typeArgs: Seq[Type]
+
+    def render: String
+
+    def <::(tpe: Type) = Type.NType(tpe.name, tpe.typeArgs, Some(this))
+  }
+
+  object Type {
+
+    def apply(name: String, typeArgs: Type*): Type = NType(name, typeArgs)
+
+
+    case class NType(name: String, typeArgs: Seq[Type] = Nil, upperBounds: Option[Type] = None) extends Type {
+      def render: String = s"$name$tArgs$upper"
+
+      private def tArgs = if (typeArgs.isEmpty) "" else typeArgs.map(_.render).mkString("[", ", ", "]")
+
+      private def upper = upperBounds.fold("")(b => s" <: ${b.render}")
+    }
+
+    case class Tuple(typeArgs: Seq[Type]) extends Type {
+      require(typeArgs.nonEmpty)
+
+      def name = s"Tuple${typeArgs.length}"
+
+      def render: String = typeArgs match {
+        case Seq(a) => Type(name, a).render
+        case _      => typeArgs.map(_.render).mkString("(", ", ", ")")
+      }
+    }
+
+    object Tuple {
+      def apply(n: Int, name: String): Tuple = Tuple((1 to n).map(i => Type(s"$name$i")))
+    }
+
+
+    val __ = Type("_")
+
+    val Condition = Type("Condition")
+
+    val Number = Type("Number")
+    val JBoolean = Type("java.lang.Boolean")
+
+    def Field(tpe: Type) = Type("Field", tpe)
+
+    def Record1(tpe: Type) = Type("Record1", tpe)
+  }
+
+  case class Arg(name: String, tpe: Type) {
+    def render: String = s"$name: ${tpe.render}"
+  }
+
+  case class Method(name: String, tpe: Type, args: Seq[Arg], body: String) {
+    def render: String =
+      s"""def $name${if (args.isEmpty) "" else args.map(_.render).mkString("(", ", ", ")")}: ${tpe.render} =
+         |  $body
+         |""".stripMargin
+  }
+
+
+  import Type._
 
   object ConditionOpsClass extends OpsClass {
-    val tpe: String = "ConditionOps"
 
-    val selfTpe: String = "Condition"
+    def tpe: Type = Type("ConditionOps")
 
-    lazy val members: Seq[String] = {
-      val not =
-        s"""def unary_! : Condition =
-           |  $self.not()
-           |""".stripMargin
+    def self: Arg = Arg("self", Condition)
 
+    def methods: Seq[Method] = {
+      val not = Method("unary_! ", Condition, Nil, s"${self.name}.not()")
       val ops = for {
         (op, m) <- Seq(
           "&&" -> "and",
           "||" -> "or"
         )
+        a = "other"
         (t, o) <- Seq(
-          "Condition" -> "other",
-          "Field[java.lang.Boolean]" -> "other",
-          "java.lang.Boolean" -> "DSL.inline(other)"
+          Condition -> a,
+          Field(JBoolean) -> a,
+          JBoolean -> s"DSL.inline($a)"
         )
-      } yield
-        s"""def $op(other: $t): Condition =
-           |  $self.$m($o)
-           |""".stripMargin
-
+      } yield Method(op, Condition, Seq(Arg(a, t)), s"${self.name}.$m($o)")
       not +: ops
     }
   }
 
 
   object FieldOpsClass extends OpsClass {
-    val tpe: String = "FieldOps[T]"
+    val A = Type("A")
 
-    val selfTpe: String = "Field[T]"
+    def tpe: Type = Type("FieldOps", A)
 
-    lazy val members: Seq[String] = {
-      def condOps(ops: Seq[(String, String)], types: Seq[String]) = for {
-        (op, m) <- ops
-        t <- types
-      } yield
-        s"""def $op(other: $t): Condition =
-           |  $self.$m(other)
-           |""".stripMargin
+    def self: Arg = Arg("self", Field(A))
+
+    def methods: Seq[Method] = {
+      def condOps(ops: Seq[(String, String)], types: Seq[Type]) =
+        for {
+          (op, m) <- ops
+          t <- types
+          a = Arg("other", t)
+        } yield Method(op, Condition, Seq(a), s"${self.name}.$m(${a.name})")
 
       val standardCondOps = condOps(
         Seq(
@@ -207,12 +262,11 @@ object SyntaxGenerator extends AutoPlugin {
           "<="  -> "lessOrEqual",
           ">"   -> "greaterThan",
           ">="  -> "greaterOrEqual"
-        ),
-        Seq(
-          "T",
-          "Field[T]",
-          "Select[_ <: Record1[T]]",
-          "QuantifiedSelect[_ <: Record1[T]]"
+        ), Seq(
+          A,
+          Field(A),
+          Type("Select", __ <:: Record1(A)),
+          Type("QuantifiedSelect", __ <:: Record1(A))
         ))
 
       val distinctCondOps = condOps(
@@ -220,8 +274,8 @@ object SyntaxGenerator extends AutoPlugin {
           "<=>" -> "isNotDistinctFrom"
         ),
         Seq(
-          "T",
-          "Field[T]"
+          A,
+          Field(A)
         ))
 
       standardCondOps ++ distinctCondOps
@@ -230,25 +284,24 @@ object SyntaxGenerator extends AutoPlugin {
 
 
   object NumberFieldOpsClass extends OpsClass {
-    val tpe: String = "NumberFieldOps[T <: Number]"
+    val A = Type("A")
 
-    val selfTpe: String = "Field[T]"
+    def tpe: Type = Type("NumberFieldOps", A <:: Number)
 
-    lazy val members: Seq[String] = {
+    def self: Arg = Arg("self", Field(A))
+
+    def methods: Seq[Method] = {
       def unary(op: String, body: String) =
-        s"""def unary_$op : Field[T] =
-           |  $body
-           |""".stripMargin
+        Method(s"unary_$op ", Field(A), Nil, body)
 
-      def binOps(ops: Seq[(String, String)], types: Seq[String], body: String => String) = for {
-        (op, m) <- ops
-        t <- types
-      } yield
-        s"""def $op(other: $t): Field[T] =
-           |  ${body(m)}
-           |""".stripMargin
+      def binOps(ops: Seq[(String, String)], types: Seq[Type], body: (String, Arg) => String) =
+        for {
+          (op, m) <- ops
+          t <- types
+          a = Arg("other", t)
+        } yield Method(op, Field(A), Seq(a), body(m, a))
 
-      val neg = unary("-", s"$self.neg()")
+      val neg = unary("-", s"${self.name}.neg()")
       val arithmeticOps = neg +: binOps(
         Seq(
           "+" -> "add",
@@ -258,12 +311,12 @@ object SyntaxGenerator extends AutoPlugin {
           "%" -> "mod"
         ),
         Seq(
-          "Number",
-          "Field[_ <: Number]"
+          Number,
+          Field(__ <:: Number)
         ),
-        m => s"$self.$m(other)")
+        (m, a) => s"${self.name}.$m(${a.name})")
 
-      val not = unary("~", s"DSL.bitNot($self)")
+      val not = unary("~", s"DSL.bitNot(${self.name})")
       val bitwiseOps = not +: binOps(
         Seq(
           "&" -> "bitAnd",
@@ -276,10 +329,10 @@ object SyntaxGenerator extends AutoPlugin {
           ">>" -> "shr"
         ),
         Seq(
-          "T",
-          "Field[T]"
+          A,
+          Field(A)
         ),
-        m => s"DSL.$m($self, other)")
+        (m, a) => s"DSL.$m(${self.name}, ${a.name})")
 
       arithmeticOps ++ bitwiseOps
     }
@@ -288,73 +341,57 @@ object SyntaxGenerator extends AutoPlugin {
 
   class DateTimeFieldOpsClass(clazz: Class[_]) extends OpsClass {
 
-    val tpe: String = s"${clazz.getSimpleName}FieldOps"
+    def tpe: Type = Type(s"${clazz.getSimpleName}FieldOps")
 
-    val selfTpe: String = s"Field[${clazz.getName}]"
+    def self: Arg = Arg("self", Field(Type(clazz.getName)))
 
-    lazy val members: Seq[String] = {
+    def methods: Seq[Method] =
       for {
         (op, m) <- Seq(
           "+" -> "add",
           "-" -> "sub"
         )
         t <- Seq(
-          "Number",
-          "Field[_ <: Number]"
+          Number,
+          Field(__ <:: Number)
         )
-      } yield
-        s"""def $op(other: $t): $selfTpe =
-           |  $self.$m(other)
-           |""".stripMargin
-    }
+        a = Arg("other", t)
+      } yield Method(op, Field(Type(clazz.getName)), Seq(a), s"${self.name}.$m(${a.name})")
   }
 
 
   class RecordNOpsClass(n: Int) extends OpsClass {
-    val ts = Util.ts("T", n)
+    val ta = (1 to n).map(i => Type(s"A$i"))
 
-    val tpe: String = s"Record${n}Ops[$ts]"
+    def tpe: Type = Type(s"Record${n}Ops", ta: _*)
 
-    val selfTpe: String = s"Record$n[$ts]"
+    def self: Arg = Arg("self", Type(s"Record$n", ta: _*))
 
     override val importSelf: Boolean = true
 
-    lazy val members: Seq[String] = {
-      val tpe = if (n == 1) "Tuple1[T1]" else s"($ts)"
-      val body = if (n == 1) "Tuple1(value1)" else s"(${Util.ns(n, "value" + _)})"
-      val toTuple =
-        s"""def toTuple: $tpe =
-           |  $body
-           |""".stripMargin
-
-      Seq(toTuple)
-    }
+    def methods: Seq[Method] = Seq(
+      Method("toTuple", Tuple(n, "A"), Nil, if (n == 1) "Tuple1(value1)" else s"(${Util.ns(n, "value" + _)})")
+    )
   }
 
 
   class TupleNOpsClass(n: Int) extends OpsClass {
-    val ts = Util.ts("T", n)
+    val ta = (1 to n).map(i => Type(s"A$i"))
 
-    val tpe: String = s"Tuple${n}Ops[$ts]"
+    def tpe: Type = Type(s"Tuple${n}Ops", ta: _*)
 
-    val selfTpe: String = if (n == 1) "Tuple1[T1]" else s"($ts)"
+    def self: Arg = Arg("self", Tuple(n, "A"))
 
     override val importSelf: Boolean = true
 
-    lazy val members: Seq[String] = {
-      val row =
-        s"""def row: Row$n[$ts] =
-           |  DSL.row(${Util.ns(n, "_" + _)})
-           |""".stripMargin
-
-      Seq(row)
-    }
+    def methods: Seq[Method] = Seq(
+      Method("row", Type(s"Row$n", ta: _*), Nil, s"DSL.row(${Util.ns(n, "_" + _)})")
+    )
   }
 
 
   object Util {
     def ns(n: Int, f: Int => String): String = (1 to n).map(f).mkString(", ")
-    def ts(prefix: String, n: Int): String = ns(n, prefix + _)
   }
 
   implicit class IndentOps(val self: String) extends AnyVal {
