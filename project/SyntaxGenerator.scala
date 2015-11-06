@@ -1,5 +1,6 @@
 import sbt.Keys._
 import sbt._
+import scala.util.Try
 
 object SyntaxGenerator extends AutoPlugin {
 
@@ -26,12 +27,9 @@ object SyntaxGenerator extends AutoPlugin {
   lazy val classes = Seq(
     ConditionOpsClass,
     FieldOpsClass,
-    NumberFieldOpsClass
-  ) ++ Seq(
-    classOf[java.sql.Date],
-    classOf[java.sql.Time],
-    classOf[java.sql.Timestamp]
-  ).map(new DateTimeFieldOpsClass(_)) ++
+    NumberFieldOpsClass,
+    DateTimeFieldOpsClass
+  ) ++
     (1 to 22).map(new RecordNOpsClass(_)) ++
     (1 to 22).map(new TupleNOpsClass(_))
 
@@ -56,6 +54,7 @@ object SyntaxGenerator extends AutoPlugin {
   def renderAll: String =
     s"""package $pkg
        |
+       |import jooqs.impl._
        |import org.jooq._
        |import org.jooq.impl.DSL
        |
@@ -148,66 +147,74 @@ object SyntaxGenerator extends AutoPlugin {
     }
   }
 
-  sealed trait Type {
-    def name: String
 
-    def typeArgs: Seq[Type]
+  case class Type(name: String, typeArgs: Seq[Type] = Nil, contextBounds: Seq[Type] = Nil, upperBound: Option[Type] = None) {
 
-    def render: String
+    require(tupleArity.forall(_ == typeArgs.length))
 
-    def <::(tpe: Type) = Type.NType(tpe.name, tpe.typeArgs, Some(this))
+    def apply(ts: Type*): Type = copy(typeArgs = ts)
+
+    def ::(tpe: Type): Type = tpe.copy(contextBounds = tpe.contextBounds :+ this)
+
+    def <::(tpe: Type): Type = tpe.copy(upperBound = Some(this))
+
+    def render: String = {
+      val tas = typeArgs.map(_.render)
+      val s = tupleArity match {
+        case Some(n) if n >= 2 => tas.mkString("(", ", ", ")")
+        case _                 => s"$name${if (tas.isEmpty) "" else tas.mkString("[", ", ", "]")}"
+      }
+      val ctx = if (contextBounds.isEmpty) "" else contextBounds.map(_.render).mkString(": ", " : ", "")
+      val upper = upperBound.fold("")(u => s" <: ${u.render}")
+      s"$s$ctx$upper"
+    }
+
+    private def tupleArity: Option[Int] =
+      name.splitAt(5) match {
+        case ("Tuple", s) => Try(s.toInt).filter(n => n >= 1 && n <= 22).toOption
+        case _            => None
+      }
   }
 
   object Type {
 
-    def apply(name: String, typeArgs: Type*): Type = NType(name, typeArgs)
+    def apply(name: String, typeArgs: Type*): Type = Type(name, typeArgs)
 
-
-    case class NType(name: String, typeArgs: Seq[Type] = Nil, upperBounds: Option[Type] = None) extends Type {
-      def render: String = s"$name$tArgs$upper"
-
-      private def tArgs = if (typeArgs.isEmpty) "" else typeArgs.map(_.render).mkString("[", ", ", "]")
-
-      private def upper = upperBounds.fold("")(b => s" <: ${b.render}")
-    }
-
-    case class Tuple(typeArgs: Seq[Type]) extends Type {
-      require(typeArgs.nonEmpty)
-
-      def name = s"Tuple${typeArgs.length}"
-
-      def render: String = typeArgs match {
-        case Seq(a) => Type(name, a).render
-        case _      => typeArgs.map(_.render).mkString("(", ", ", ")")
-      }
-    }
-
-    object Tuple {
-      def apply(n: Int, name: String): Tuple = Tuple((1 to n).map(i => Type(s"$name$i")))
-    }
-
+    def Tuple(n: Int, prefix: String): Type = Type(s"Tuple$n", (1 to n).map(i => Type(s"$prefix$i")))
 
     val __ = Type("_")
-
-    val Condition = Type("Condition")
 
     val Number = Type("Number")
     val JBoolean = Type("java.lang.Boolean")
 
-    def Field(tpe: Type) = Type("Field", tpe)
+    val Field = Type("Field")
+    val Record1 = Type("Record1")
+    val Condition = Type("Condition")
+    val Select = Type("Select")
+    val QuantifiedSelect = Type("QuantifiedSelect")
 
-    def Record1(tpe: Type) = Type("Record1", tpe)
+    val IsDateTime = Type("IsDateTime")
+    val IsNumOrInterval = Type("IsNumOrInterval")
   }
 
-  case class Arg(name: String, tpe: Type) {
+  case class Arg(name: String, tpe: Type, implicits: Boolean = false) {
     def render: String = s"$name: ${tpe.render}"
   }
 
-  case class Method(name: String, tpe: Type, args: Seq[Arg], body: String) {
-    def render: String =
-      s"""def $name${if (args.isEmpty) "" else args.map(_.render).mkString("(", ", ", ")")}: ${tpe.render} =
+  case class Method(name: String, tpe: Type, argLists: Seq[Seq[Arg]], body: String, typeArgs: Seq[Type] = Nil) {
+    def render: String = {
+      val tas = if (typeArgs.isEmpty) "" else typeArgs.map(_.render).mkString("[", ", ", "]")
+      val args = argLists.map { xs =>
+        if (xs.isEmpty) ""
+        else {
+          val s = if (xs.exists(_.implicits)) "(implicit " else "("
+          xs.map(_.render).mkString(s, ", ", ")")
+        }
+      }.mkString
+      s"""def $name$tas$args: ${tpe.render} =
          |  $body
          |""".stripMargin
+    }
   }
 
 
@@ -232,7 +239,7 @@ object SyntaxGenerator extends AutoPlugin {
           Field(JBoolean) -> a,
           JBoolean -> s"DSL.inline($a)"
         )
-      } yield Method(op, Condition, Seq(Arg(a, t)), s"${self.name}.$m($o)")
+      } yield Method(op, Condition, Seq(Seq(Arg(a, t))), s"${self.name}.$m($o)")
       not +: ops
     }
   }
@@ -251,7 +258,7 @@ object SyntaxGenerator extends AutoPlugin {
           (op, m) <- ops
           t <- types
           a = Arg("other", t)
-        } yield Method(op, Condition, Seq(a), s"${self.name}.$m(${a.name})")
+        } yield Method(op, Condition, Seq(Seq(a)), s"${self.name}.$m(${a.name})")
 
       val standardCondOps = condOps(
         Seq(
@@ -265,8 +272,8 @@ object SyntaxGenerator extends AutoPlugin {
         ), Seq(
           A,
           Field(A),
-          Type("Select", __ <:: Record1(A)),
-          Type("QuantifiedSelect", __ <:: Record1(A))
+          Select(__ <:: Record1(A)),
+          QuantifiedSelect(__ <:: Record1(A))
         ))
 
       val distinctCondOps = condOps(
@@ -299,7 +306,7 @@ object SyntaxGenerator extends AutoPlugin {
           (op, m) <- ops
           t <- types
           a = Arg("other", t)
-        } yield Method(op, Field(A), Seq(a), body(m, a))
+        } yield Method(op, Field(A), Seq(Seq(a)), body(m, a))
 
       val neg = unary("-", s"${self.name}.neg()")
       val arithmeticOps = neg +: binOps(
@@ -339,11 +346,13 @@ object SyntaxGenerator extends AutoPlugin {
   }
 
 
-  class DateTimeFieldOpsClass(clazz: Class[_]) extends OpsClass {
+  object DateTimeFieldOpsClass extends OpsClass {
+    val A = Type("A")
+    val B = Type("B")
 
-    def tpe: Type = Type(s"${clazz.getSimpleName}FieldOps")
+    def tpe: Type = Type("DateTimeFieldOps", A)
 
-    def self: Arg = Arg("self", Field(Type(clazz.getName)))
+    def self: Arg = Arg("self", Field(A))
 
     def methods: Seq[Method] =
       for {
@@ -351,41 +360,42 @@ object SyntaxGenerator extends AutoPlugin {
           "+" -> "add",
           "-" -> "sub"
         )
-        t <- Seq(
-          Number,
-          Field(__ <:: Number)
+        (t, f) <- Seq(
+          B -> ((a: Arg) => s"DSL.`val`(${a.name})"),
+          Field(B) -> ((_: Arg).name)
         )
         a = Arg("other", t)
-      } yield Method(op, Field(Type(clazz.getName)), Seq(a), s"${self.name}.$m(${a.name})")
+        ev = Arg("A", IsDateTime(A), implicits = true)
+      } yield Method(op, Field(A), Seq(Seq(a), Seq(ev)), s"${self.name}.$m(${f(a)})", Seq(B :: IsNumOrInterval))
   }
 
 
   class RecordNOpsClass(n: Int) extends OpsClass {
-    val ta = (1 to n).map(i => Type(s"A$i"))
+    val TA = Tuple(n, "A")
 
-    def tpe: Type = Type(s"Record${n}Ops", ta: _*)
+    def tpe: Type = Type(s"Record${n}Ops", TA.typeArgs)
 
-    def self: Arg = Arg("self", Type(s"Record$n", ta: _*))
+    def self: Arg = Arg("self", Type(s"Record$n", TA.typeArgs))
 
     override val importSelf: Boolean = true
 
     def methods: Seq[Method] = Seq(
-      Method("toTuple", Tuple(n, "A"), Nil, if (n == 1) "Tuple1(value1)" else s"(${Util.ns(n, "value" + _)})")
+      Method("toTuple", TA, Nil, if (n == 1) "Tuple1(value1)" else s"(${Util.ns(n, "value" + _)})")
     )
   }
 
 
   class TupleNOpsClass(n: Int) extends OpsClass {
-    val ta = (1 to n).map(i => Type(s"A$i"))
+    val TA = Tuple(n, "A")
 
-    def tpe: Type = Type(s"Tuple${n}Ops", ta: _*)
+    def tpe: Type = Type(s"Tuple${n}Ops", TA.typeArgs)
 
-    def self: Arg = Arg("self", Tuple(n, "A"))
+    def self: Arg = Arg("self", TA)
 
     override val importSelf: Boolean = true
 
     def methods: Seq[Method] = Seq(
-      Method("row", Type(s"Row$n", ta: _*), Nil, s"DSL.row(${Util.ns(n, "_" + _)})")
+      Method("row", Type(s"Row$n", TA.typeArgs), Nil, s"DSL.row(${Util.ns(n, "_" + _)})")
     )
   }
 

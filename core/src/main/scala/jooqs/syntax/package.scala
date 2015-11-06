@@ -2,7 +2,7 @@ package jooqs.syntax
 
 import java.sql.Connection
 import jooqs._
-import jooqs.impl.DefaultTransactionContext
+import jooqs.impl._
 import org.jooq._
 import org.jooq.impl.DSL
 import scala.util.control.ControlThrowable
@@ -343,71 +343,27 @@ object `package` {
 
   //// end:NumberFieldOps
 
-  //// start:DateFieldOps
-  implicit class DateFieldOps(private val self: Field[java.sql.Date]) extends AnyVal {
+  //// start:DateTimeFieldOps
+  implicit class DateTimeFieldOps[A](private val self: Field[A]) extends AnyVal {
 
     ////
 
     ////
 
-    def +(other: Number): Field[java.sql.Date] =
+    def +[B: IsNumOrInterval](other: B)(implicit A: IsDateTime[A]): Field[A] =
+      self.add(DSL.`val`(other))
+
+    def +[B: IsNumOrInterval](other: Field[B])(implicit A: IsDateTime[A]): Field[A] =
       self.add(other)
 
-    def +(other: Field[_ <: Number]): Field[java.sql.Date] =
-      self.add(other)
+    def -[B: IsNumOrInterval](other: B)(implicit A: IsDateTime[A]): Field[A] =
+      self.sub(DSL.`val`(other))
 
-    def -(other: Number): Field[java.sql.Date] =
-      self.sub(other)
-
-    def -(other: Field[_ <: Number]): Field[java.sql.Date] =
-      self.sub(other)
-  }
-
-  //// end:DateFieldOps
-
-  //// start:TimeFieldOps
-  implicit class TimeFieldOps(private val self: Field[java.sql.Time]) extends AnyVal {
-
-    ////
-
-    ////
-
-    def +(other: Number): Field[java.sql.Time] =
-      self.add(other)
-
-    def +(other: Field[_ <: Number]): Field[java.sql.Time] =
-      self.add(other)
-
-    def -(other: Number): Field[java.sql.Time] =
-      self.sub(other)
-
-    def -(other: Field[_ <: Number]): Field[java.sql.Time] =
+    def -[B: IsNumOrInterval](other: Field[B])(implicit A: IsDateTime[A]): Field[A] =
       self.sub(other)
   }
 
-  //// end:TimeFieldOps
-
-  //// start:TimestampFieldOps
-  implicit class TimestampFieldOps(private val self: Field[java.sql.Timestamp]) extends AnyVal {
-
-    ////
-
-    ////
-
-    def +(other: Number): Field[java.sql.Timestamp] =
-      self.add(other)
-
-    def +(other: Field[_ <: Number]): Field[java.sql.Timestamp] =
-      self.add(other)
-
-    def -(other: Number): Field[java.sql.Timestamp] =
-      self.sub(other)
-
-    def -(other: Field[_ <: Number]): Field[java.sql.Timestamp] =
-      self.sub(other)
-  }
-
-  //// end:TimestampFieldOps
+  //// end:DateTimeFieldOps
 
   //// start:Record1Ops
   implicit class Record1Ops[A1](private val self: Record1[A1]) extends AnyVal {
