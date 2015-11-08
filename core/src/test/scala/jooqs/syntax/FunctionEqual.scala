@@ -1,0 +1,27 @@
+package jooqs.syntax
+
+import scala.util.Random
+import scalaprops.Gen
+import scalaz.Equal
+
+
+object FunctionEqual extends FunctionEqual(20)
+
+class FunctionEqual(size: Int) {
+  implicit def f1[A1: Gen, B](implicit B: Equal[B]): Equal[A1 => B] = {
+    val values = Gen[A1].samples(listSize = size, size = size, seed = Random.nextLong())
+
+    Equal.equal((x, y) =>
+      values.forall(a => B.equal(x(a), y(a)))
+    )
+  }
+
+  implicit def f2[A1: Gen, A2: Gen, B](implicit B: Equal[B]): Equal[(A1, A2) => B] =
+    f1[(A1, A2), B].contramap(_.tupled)
+
+  implicit def f3[A1: Gen, A2: Gen, A3: Gen, B](implicit B: Equal[B]): Equal[(A1, A2, A3) => B] =
+    f1[(A1, A2, A3), B].contramap(_.tupled)
+
+  implicit def f4[A1: Gen, A2: Gen, A3: Gen, A4: Gen, B](implicit B: Equal[B]): Equal[(A1, A2, A3, A4) => B] =
+    f1[(A1, A2, A3, A4), B].contramap(_.tupled)
+}

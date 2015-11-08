@@ -7,7 +7,8 @@ lazy val core = project
   .settings(
     name := "jooqs-core",
     dependencies.core,
-    crossVersionSettings
+    crossVersionSettings,
+    scalapropsWithScalazlaws
   )
 
 lazy val config = project

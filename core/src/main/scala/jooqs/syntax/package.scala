@@ -95,6 +95,22 @@ object `package` {
   }
 
 
+  implicit class RecordMapperOps[R <: Record, A](private val self: RecordMapper[R, A]) extends AnyVal {
+
+    def fmap[B](f: A => B): RecordMapper[R, B] =
+      r => f(self.map(r))
+
+    def flatMap[B](f: A => RecordMapper[R, B]): RecordMapper[R, B] =
+      r => f(self.map(r)).map(r)
+
+    def zip[B](that: RecordMapper[R, B]): RecordMapper[R, (A, B)] =
+      zipWith(that)((_, _))
+
+    def zipWith[B, C](that: RecordMapper[R, B])(f: (A, B) => C): RecordMapper[R, C] =
+      r => f(self.map(r), that.map(r))
+  }
+
+
   implicit class SQLInterpolation(private val sc: StringContext) extends AnyVal {
 
     def sql(args: Any*): SQL = {
