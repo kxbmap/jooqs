@@ -14,7 +14,7 @@ object RecordMapperOpsTest extends Scalaprops {
 
     implicit val recordMapperInstance: Monad[F] with Zip[F] =
       new Monad[F] with Zip[F] {
-        def point[A](a: => A): RecordMapper[Record, A] =
+        def point[A](a: => A): F[A] =
           _ => a
 
         def bind[A, B](fa: F[A])(f: A => F[B]): F[B] =
@@ -40,13 +40,13 @@ object RecordMapperOpsTest extends Scalaprops {
     implicit val recordCogen: Cogen[Record] =
       Cogen[Int].contramap(_.getValue("f1", classOf[Integer]).intValue())
 
-    import FunctionEqual._
-
     implicit def recordMapperGen[A: Gen]: Gen[F[A]] =
       Gen[Record => A].map(f => f(_))
 
-    implicit def recordMapperEqual[A: Equal]: Equal[F[A]] =
+    implicit def recordMapperEqual[A: Equal]: Equal[F[A]] = {
+      import FunctionEqual._
       Equal[Record => A].contramap(_.map)
+    }
 
     Properties.list(
       scalazlaws.monad.all[F],
