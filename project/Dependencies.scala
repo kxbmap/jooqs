@@ -20,10 +20,10 @@ object Dependencies extends AutoPlugin {
   import autoImport._
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
-    jooqVersion := "3.7.0",
+    jooqVersion := "3.7.1",
     play24Version := "2.4.3",
     play25Version := "2.5.0-M1",
-    scalapropsVersion := "0.1.15",
+    scalapropsVersion := "0.1.16",
     scalaTestVersion := (CrossVersion.partialVersion(scalaVersion.value) match {
       case Some((2, 12)) => "2.2.5-M3"
       case _             => "2.2.5"
@@ -36,7 +36,7 @@ object Dependencies extends AutoPlugin {
     val core = libraryDependencies ++= Seq(
       "org.jooq" % "jooq" % jooqVersion.value,
       "com.h2database" % "h2" % "1.4.190" % "test",
-      "org.slf4j" % "slf4j-simple" % "1.7.12" % "test",
+      "org.slf4j" % "slf4j-simple" % "1.7.13" % "test",
       "org.scalatest" %% "scalatest" % scalaTestVersion.value % "test",
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion.value % "test",
       "org.mockito" % "mockito-core" % "2.0.31-beta" % "test"
