@@ -51,6 +51,28 @@ class SQLInterpolationSpec extends FunSpec {
       assert(dsl.renderInlined(s) == "insert into foo (a, b, c) values (0, 1, 2)")
     }
 
+    it("should expand sequence of product") {
+      val seq = Seq(
+        (0, DSL.value(1), DSL.inline(2)),
+        (3, DSL.value(4), DSL.inline(5)),
+        (6, DSL.value(7), DSL.inline(8))
+      )
+      val s = sql"insert into foo (a, b, c) values $seq"
+      assert(dsl.render(s) == "insert into foo (a, b, c) values (?, ?, 2), (?, ?, 5), (?, ?, 8)")
+      assert(dsl.renderInlined(s) == "insert into foo (a, b, c) values (0, 1, 2), (3, 4, 5), (6, 7, 8)")
+    }
+
+    it("should expand Map") {
+      val map = Map(
+        DSL.inline(0) -> "foo",
+        DSL.inline(1) -> "bar",
+        DSL.inline(2) -> "baz"
+      )
+      val s = sql"insert into foo (a, b) values $map"
+      assert(dsl.render(s) == "insert into foo (a, b) values (0, ?), (1, ?), (2, ?)")
+      assert(dsl.renderInlined(s) == "insert into foo (a, b) values (0, 'foo'), (1, 'bar'), (2, 'baz')")
+    }
+
   }
 
 }

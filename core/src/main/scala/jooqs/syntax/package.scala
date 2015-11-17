@@ -121,20 +121,13 @@ object `package` {
       val sb = new StringBuilder(pi.next())
       val ab = new ArrayBuffer[Any]()
       var i = 0
-      def bind(x: Any): Unit = {
-        sb += '{'
-        sb.append(i)
-        sb += '}'
-        ab += x
-        i += 1
-      }
       def append(x: Any): Unit = {
         x match {
           case ys: GenTraversableOnce[_] =>
             var first = true
             ys.foreach { y =>
               if (!first) sb ++= ", "
-              bind(y)
+              append(y)
               first = false
             }
 
@@ -143,7 +136,12 @@ object `package` {
             append(p.productIterator)
             sb += ')'
 
-          case _ => bind(x)
+          case _ =>
+            sb += '{'
+            sb.append(i)
+            sb += '}'
+            ab += x
+            i += 1
         }
       }
       pi.zip(args.iterator).foreach {
