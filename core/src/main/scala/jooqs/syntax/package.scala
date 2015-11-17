@@ -5,7 +5,7 @@ import jooqs._
 import jooqs.impl._
 import org.jooq._
 import org.jooq.impl.DSL
-import scala.collection.GenTraversable
+import scala.collection.GenTraversableOnce
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
 
@@ -130,12 +130,18 @@ object `package` {
       }
       def append(x: Any): Unit = {
         x match {
-          case ys: GenTraversable[_] if ys.nonEmpty =>
-            bind(ys.head)
-            ys.tail.foreach { y =>
-              sb ++= ", "
+          case ys: GenTraversableOnce[_] =>
+            var first = true
+            ys.foreach { y =>
+              if (!first) sb ++= ", "
               bind(y)
+              first = false
             }
+
+          case p: Product =>
+            sb += '('
+            append(p.productIterator)
+            sb += ')'
 
           case _ => bind(x)
         }

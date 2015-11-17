@@ -45,6 +45,12 @@ class SQLInterpolationSpec extends FunSpec {
       assert(dsl.renderInlined(s) == "select 0, 1, 2")
     }
 
+    it("should expand product") {
+      val s = sql"insert into foo (a, b, c) values ${(0, DSL.value(1), DSL.inline(2))}"
+      assert(dsl.render(s) == "insert into foo (a, b, c) values (?, ?, 2)")
+      assert(dsl.renderInlined(s) == "insert into foo (a, b, c) values (0, 1, 2)")
+    }
+
   }
 
 }
