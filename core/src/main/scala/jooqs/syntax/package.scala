@@ -5,6 +5,8 @@ import jooqs._
 import jooqs.impl._
 import org.jooq._
 import org.jooq.impl.DSL
+import scala.collection.GenTraversable
+import scala.collection.mutable.ArrayBuffer
 import scala.util.control.ControlThrowable
 
 object `package` {
@@ -117,15 +119,33 @@ object `package` {
       sc.checkLengths(args)
       val pi = sc.parts.iterator
       val sb = new StringBuilder(pi.next())
+      val ab = new ArrayBuffer[Any]()
       var i = 0
-      while (pi.hasNext) {
+      def bind(x: Any): Unit = {
         sb += '{'
         sb.append(i)
         sb += '}'
-        sb ++= pi.next()
+        ab += x
         i += 1
       }
-      DSL.sql(sb.result(), args.asInstanceOf[Seq[AnyRef]]: _*)
+      def append(x: Any): Unit = {
+        x match {
+          case ys: GenTraversable[_] if ys.nonEmpty =>
+            bind(ys.head)
+            ys.tail.foreach { y =>
+              sb ++= ", "
+              bind(y)
+            }
+
+          case _ => bind(x)
+        }
+      }
+      pi.zip(args.iterator).foreach {
+        case (s, a) =>
+          append(a)
+          sb ++= s
+      }
+      DSL.sql(sb.result(), ab.asInstanceOf[Seq[AnyRef]]: _*)
     }
   }
 

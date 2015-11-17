@@ -39,6 +39,12 @@ class SQLInterpolationSpec extends FunSpec {
       assert(dsl.renderInlined(s) == "select 0, 1, 0, 1, 0, 1")
     }
 
+    it("should expand sequence") {
+      val s = sql"select ${Seq(0, DSL.value(1), DSL.inline(2))}"
+      assert(dsl.render(s) == "select ?, ?, 2")
+      assert(dsl.renderInlined(s) == "select 0, 1, 2")
+    }
+
   }
 
 }
