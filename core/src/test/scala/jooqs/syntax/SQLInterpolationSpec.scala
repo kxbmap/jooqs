@@ -12,22 +12,26 @@ class SQLInterpolationSpec extends FunSpec {
     val dsl = DSL.using(SQLDialect.DEFAULT)
 
     it("should returns SQL object") {
-      val s: SQL = sql"select 1"
-      assert(dsl.render(s) == "select 1")
+      val s: SQL = sql"select 0, 1"
+      assert(dsl.render(s) == "select 0, 1")
     }
 
-    it("should bind value") {
-      val n = 1
-      val s = sql"select $n"
-      assert(dsl.render(s) == "select ?")
-      assert(dsl.renderInlined(s) == "select 1")
+    it("should bind values") {
+      val s = sql"select ${0}, ${1}"
+      assert(dsl.render(s) == "select ?, ?")
+      assert(dsl.renderInlined(s) == "select 0, 1")
     }
 
-    it("should bind QueryPart") {
-      val p = DSL.one()
-      val s = sql"select $p"
-      assert(dsl.render(s) == "select ?")
-      assert(dsl.renderInlined(s) == "select 1")
+    it("should bind QueryParts") {
+      val s = sql"select ${DSL.zero()}, ${DSL.one()}"
+      assert(dsl.render(s) == "select ?, ?")
+      assert(dsl.renderInlined(s) == "select 0, 1")
+    }
+
+    it("should bind values and QueryParts") {
+      val s = sql"select ${0}, ${1}, ${DSL.zero()}, ${DSL.one()}"
+      assert(dsl.render(s) == "select ?, ?, ?, ?")
+      assert(dsl.renderInlined(s) == "select 0, 1, 0, 1")
     }
 
   }
