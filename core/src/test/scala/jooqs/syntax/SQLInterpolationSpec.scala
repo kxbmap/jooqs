@@ -4,7 +4,7 @@ import org.jooq.impl.DSL
 import org.jooq.{SQL, SQLDialect}
 import org.scalatest.FunSpec
 
-//noinspection SqlNoDataSourceInspection
+//noinspection SqlNoDataSourceInspection,SqlDialectInspection
 class SQLInterpolationSpec extends FunSpec {
 
   describe("sql interpolation") {
@@ -23,15 +23,20 @@ class SQLInterpolationSpec extends FunSpec {
     }
 
     it("should bind QueryParts") {
-      val s = sql"select ${DSL.zero()}, ${DSL.one()}"
+      val s = sql"select ${DSL.value(0)}, ${DSL.value(1)}"
       assert(dsl.render(s) == "select ?, ?")
       assert(dsl.renderInlined(s) == "select 0, 1")
     }
 
+    it("should bind inline QueryParts") {
+      val s = sql"select ${DSL.inline(0)}, ${DSL.inline(1)}"
+      assert(dsl.render(s) == "select 0, 1")
+    }
+
     it("should bind values and QueryParts") {
-      val s = sql"select ${0}, ${1}, ${DSL.zero()}, ${DSL.one()}"
-      assert(dsl.render(s) == "select ?, ?, ?, ?")
-      assert(dsl.renderInlined(s) == "select 0, 1, 0, 1")
+      val s = sql"select ${0}, ${1}, ${DSL.value(0)}, ${DSL.value(1)}, ${DSL.inline(0)}, ${DSL.inline(1)}"
+      assert(dsl.render(s) == "select ?, ?, ?, ?, 0, 1")
+      assert(dsl.renderInlined(s) == "select 0, 1, 0, 1, 0, 1")
     }
 
   }

@@ -117,9 +117,13 @@ object `package` {
       sc.checkLengths(args)
       val pi = sc.parts.iterator
       val sb = new StringBuilder(pi.next())
+      var i = 0
       while (pi.hasNext) {
-        sb += '?'
+        sb += '{'
+        sb.append(i)
+        sb += '}'
         sb ++= pi.next()
+        i += 1
       }
       DSL.sql(sb.result(), args.asInstanceOf[Seq[AnyRef]]: _*)
     }
