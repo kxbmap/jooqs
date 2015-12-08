@@ -4,7 +4,7 @@ import org.jooq.impl.{DSL, SQLDataType}
 import org.jooq.{Record, RecordMapper, SQLDialect}
 import scalaprops.{Cogen, Gen, Properties, Scalaprops, scalazlaws}
 import scalaz.std.anyVal._
-import scalaz.{Equal, Functor, Monad, Zip}
+import scalaz.{Unzip, Equal, Functor, Monad, Zip}
 
 
 object RecordMapperOpsTest extends Scalaprops {
@@ -12,8 +12,8 @@ object RecordMapperOpsTest extends Scalaprops {
   val laws = {
     type F[A] = RecordMapper[Record, A]
 
-    implicit val recordMapperInstance: Monad[F] with Zip[F] =
-      new Monad[F] with Zip[F] {
+    implicit val recordMapperInstance: Monad[F] with Zip[F] with Unzip[F] =
+      new Monad[F] with Zip[F] with Unzip[F] {
         def point[A](a: => A): F[A] =
           _ => a
 
@@ -28,6 +28,9 @@ object RecordMapperOpsTest extends Scalaprops {
 
         override def zipWith[A, B, C](fa: => F[A], fb: => F[B])(f: (A, B) => C)(implicit F: Functor[F]): F[C] =
           fa.zipWith(fb)(f)
+
+        def unzip[A, B](a: F[(A, B)]): (F[A], F[B]) =
+          a.unzip[A, B]
       }
 
     implicit val recordGen: Gen[Record] =

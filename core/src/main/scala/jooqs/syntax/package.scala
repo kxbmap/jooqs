@@ -110,6 +110,9 @@ object `package` {
 
     def zipWith[B, C](that: RecordMapper[R, B])(f: (A, B) => C): RecordMapper[R, C] =
       r => f(self.map(r), that.map(r))
+
+    def unzip[B, C](implicit ev: A =:= (B, C)): (RecordMapper[R, B], RecordMapper[R, C]) =
+      (self.map(_)._1, self.map(_)._2)
   }
 
 
