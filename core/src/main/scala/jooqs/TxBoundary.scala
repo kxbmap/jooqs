@@ -9,6 +9,9 @@ trait TxBoundary[T] {
 
   def finish(result: T, provider: TransactionProvider, ctx: TransactionContext): T
 
+  final def xmap[U](f: T => U, g: U => T): TxBoundary[U] =
+    (r, p, c) => f(finish(g(r), p, c))
+
 }
 
 object TxBoundary extends TxBoundaryInstances {
