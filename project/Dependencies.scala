@@ -13,6 +13,7 @@ object Dependencies extends AutoPlugin {
     val play25Version = settingKey[String]("Play framework 2.5.x version")
     val scalaTestVersion = settingKey[String]("ScalaTest version")
     val scalaCheckVersion = settingKey[String]("ScalaCheck version")
+    val slf4jVersion = settingKey[String]("Slf4j version")
 
     val dependencies = Modules
   }
@@ -28,7 +29,8 @@ object Dependencies extends AutoPlugin {
       case Some((2, 12)) => "2.2.5-M3"
       case _             => "2.2.6"
     }),
-    scalaCheckVersion := "1.13.0"
+    scalaCheckVersion := "1.13.0",
+    slf4jVersion := "1.7.18"
   )
 
   object Modules {
@@ -36,7 +38,7 @@ object Dependencies extends AutoPlugin {
     val core = libraryDependencies ++= Seq(
       "org.jooq" % "jooq" % jooqVersion.value,
       "com.h2database" % "h2" % "1.4.191" % "test",
-      "org.slf4j" % "slf4j-simple" % "1.7.18" % "test",
+      "org.slf4j" % "slf4j-simple" % slf4jVersion.value % "test",
       "org.scalatest" %% "scalatest" % scalaTestVersion.value % "test",
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion.value % "test",
       "org.mockito" % "mockito-core" % "2.0.43-beta" % "test"
@@ -49,16 +51,21 @@ object Dependencies extends AutoPlugin {
 
     private def playLibs(ver: String) = Seq(
       "com.typesafe.play" %% "play-jdbc-api" % ver,
-      "com.typesafe.play" %% "play-jdbc" % ver % "test",
-      "com.typesafe.play" %% "play-specs2" % ver % "test"
+      "com.typesafe.play" %% "play-jdbc" % ver % "test"
     )
 
     val play24 = Seq(
-      libraryDependencies ++= playLibs(play24Version.value),
+      libraryDependencies ++= playLibs(play24Version.value) ++ Seq(
+        "org.scalatestplus" %% "play" % "1.4.0" % "test"
+      ),
       resolvers += "scalaz-bintray" at "https://dl.bintray.com/scalaz/releases"
     )
 
-    val play25 = libraryDependencies ++= playLibs(play25Version.value)
+    val play25 =
+      libraryDependencies ++= playLibs(play25Version.value) ++ Seq(
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test",
+        "org.slf4j" % "slf4j-nop" % slf4jVersion.value % "test"
+      )
 
   }
 
