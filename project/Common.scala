@@ -6,7 +6,7 @@ object Common extends AutoPlugin {
   override def trigger = allRequirements
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
-    scalaVersion := "2.11.7",
+    scalaVersion := "2.11.8",
     description := "",
     organization := "com.github.kxbmap",
     scalacOptions ++= Seq(
