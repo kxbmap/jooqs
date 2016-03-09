@@ -10,7 +10,6 @@ object Common extends AutoPlugin {
     description := "",
     organization := "com.github.kxbmap",
     scalacOptions ++= Seq(
-      "-target:jvm-1.8",
       "-deprecation",
       "-unchecked",
       "-feature",
