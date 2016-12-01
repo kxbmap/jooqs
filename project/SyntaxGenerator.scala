@@ -18,7 +18,7 @@ object SyntaxGenerator extends AutoPlugin {
     generateSyntax := {
       gen((scalaSource in Compile).value, streams.value.log)
     },
-    compile in Compile <<= (compile in Compile).dependsOn(generateSyntax)
+    compile in Compile := (compile in Compile).dependsOn(generateSyntax).value
   )
 
 

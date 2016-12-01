@@ -15,24 +15,24 @@ object CopySources extends AutoPlugin {
 
   override lazy val projectSettings: Seq[Setting[_]] =
     Seq(Compile, Test).flatMap(inConfig(_)(Seq(
-      sourcesToCopies <<= Def.taskDyn {
+      sourcesToCopies := Def.taskDyn {
         val prj = copySourcesProject.value
         Def.task {
           copies((sources in prj).value, (sourceDirectories in prj).value, sourceManaged.value)
         }
-      },
-      resourcesToCopies <<= Def.taskDyn {
+      }.value,
+      resourcesToCopies := Def.taskDyn {
         val prj = copySourcesProject.value
         Def.task {
           copies((resources in prj).value, (resourceDirectories in prj).value, resourceManaged.value)
         }
-      },
-      sourceGenerators <+= Def.task {
+      }.value,
+      sourceGenerators += Def.task {
         IO.copy(sourcesToCopies.value).toSeq
-      },
-      resourceGenerators <+= Def.task {
+      }.taskValue,
+      resourceGenerators += Def.task {
         IO.copy(resourcesToCopies.value).toSeq
-      }
+      }.taskValue
     )))
 
   private def copies(sources: Seq[File], sourceDirs: Seq[File], managedDir: File): Map[File, File] =
