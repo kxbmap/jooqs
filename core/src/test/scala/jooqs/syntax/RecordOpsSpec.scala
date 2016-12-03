@@ -5,7 +5,7 @@ import org.jooq.Record
 import org.jooq.impl.DSL
 import org.mockito.Mockito._
 import org.scalatest.FunSpec
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 
 //noinspection OptionEqualsSome,EmptyCheck
 class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {

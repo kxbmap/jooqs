@@ -12,7 +12,7 @@ object IndyLambda extends AutoPlugin {
       "-Ydelambdafy:method"
     ),
     libraryDependencies ++= seq(scalaVersion.value)(
-      "org.scala-lang.modules" %% "scala-java8-compat" % "0.7.0"
+      "org.scala-lang.modules" %% "scala-java8-compat" % "0.8.0"
     )
   )
 

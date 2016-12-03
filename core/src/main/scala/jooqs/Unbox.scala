@@ -6,10 +6,12 @@ sealed trait Unbox[T, U] {
 
 object Unbox extends LowPriorityUnboxInstances {
 
-  private def unbox[T, U](f: T => U): Unbox[T, U] = value =>
-    if (value == null)
-      throw new NullPointerException("value is null. You may use `record.getOpt(field)`")
-    else f(value)
+  private def unbox[T, U](f: T => U): Unbox[T, U] =
+    new Unbox[T, U] {
+      def unbox(value: T): U =
+        if (value == null) throw new NullPointerException("value is null. You may use `record.getOpt(field)`")
+        else f(value)
+    }
 
   implicit val byteUnbox: Unbox[java.lang.Byte, Byte] = unbox(_.byteValue())
   implicit val shortUnbox: Unbox[java.lang.Short, Short] = unbox(_.shortValue())
@@ -24,7 +26,10 @@ object Unbox extends LowPriorityUnboxInstances {
 
 sealed trait LowPriorityUnboxInstances {
 
-  private[this] final val _noBoxed: Unbox[Any, Any] = value => value
+  private[this] final val _noBoxed: Unbox[Any, Any] =
+    new Unbox[Any, Any] {
+      def unbox(value: Any): Any = value
+    }
 
   implicit def noBoxed[T]: Unbox[T, T] = _noBoxed.asInstanceOf[Unbox[T, T]]
 

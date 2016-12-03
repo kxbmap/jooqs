@@ -21,32 +21,30 @@ object Dependencies extends AutoPlugin {
   import autoImport._
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
-    jooqVersion := "3.7.3",
-    play24Version := "2.4.6",
-    play25Version := "2.5.0",
-    scalapropsVersion := "0.2.1",
-    scalaTestVersion := (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 12)) => "2.2.5-M3"
-      case _             => "2.2.6"
-    }),
-    scalaCheckVersion := "1.13.0",
-    slf4jVersion := "1.7.18"
+    jooqVersion := "3.7.4",
+    play24Version := "2.4.8",
+    play25Version := "2.5.10",
+    scalapropsVersion := "0.3.4",
+    scalaTestVersion := "3.0.1",
+    scalaCheckVersion := "1.13.4",
+    slf4jVersion := "1.7.21",
+    resolvers += Resolver.sonatypeRepo("snapshots")
   )
 
   object Modules {
 
     val core = libraryDependencies ++= Seq(
       "org.jooq" % "jooq" % jooqVersion.value,
-      "com.h2database" % "h2" % "1.4.191" % "test",
+      "com.h2database" % "h2" % "1.4.193" % "test",
       "org.slf4j" % "slf4j-simple" % slf4jVersion.value % "test",
       "org.scalatest" %% "scalatest" % scalaTestVersion.value % "test",
       "org.scalacheck" %% "scalacheck" % scalaCheckVersion.value % "test",
-      "org.mockito" % "mockito-core" % "2.0.43-beta" % "test"
+      "org.mockito" % "mockito-core" % "2.2.28" % "test"
     )
 
     val config = libraryDependencies ++= Seq(
       "org.jooq" % "jooq" % jooqVersion.value,
-      "com.github.kxbmap" %% "configs" % "0.3.0"
+      "com.github.kxbmap" %% "configs" % "0.5.0-SNAPSHOT"
     )
 
     private def playLibs(ver: String) = Seq(
@@ -63,7 +61,7 @@ object Dependencies extends AutoPlugin {
 
     val play25 =
       libraryDependencies ++= playLibs(play25Version.value) ++ Seq(
-        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % "test",
+        "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.1" % "test",
         "org.slf4j" % "slf4j-nop" % slf4jVersion.value % "test"
       )
 

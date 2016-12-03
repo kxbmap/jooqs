@@ -1,7 +1,7 @@
 package jooqs.config
 
-import com.github.kxbmap.configs.Configs
-import com.typesafe.config.{ConfigFactory, ConfigUtil}
+import com.typesafe.config.ConfigFactory
+import configs.syntax._
 import org.jooq.conf.{BackslashEscaping, MappedSchema, MappedTable, ParamType, RenderKeywordStyle, RenderMapping, RenderNameStyle, Settings, SettingsTools, StatementType}
 import scala.collection.JavaConverters._
 import scalaprops.Property.forAll
@@ -17,63 +17,25 @@ object SettingsConfigsTest extends Scalaprops {
 
   val empty = forAll {
     val config = ConfigFactory.empty()
-    Configs[Settings].extract(config) === SettingsTools.defaultSettings()
+    config.extract[Settings].exists(_ === SettingsTools.defaultSettings())
   }
 
   val full = forAll { s: Settings =>
-    val config = ConfigFactory.parseString(
-      s"""render-schema = ${s.isRenderSchema}
-         |render-mapping = ${render(s.getRenderMapping)}
-         |render-name-style = ${s.getRenderNameStyle}
-         |render-keyword-style = ${s.getRenderKeywordStyle}
-         |render-formatted = ${s.isRenderFormatted}
-         |render-scalar-subqueries-for-stored-functions = ${s.isRenderScalarSubqueriesForStoredFunctions}
-         |backslash-escaping = ${s.getBackslashEscaping}
-         |param-type = ${s.getParamType}
-         |statement-type = ${s.getStatementType}
-         |execute-logging = ${s.isExecuteLogging}
-         |execute-with-optimistic-locking = ${s.isExecuteWithOptimisticLocking}
-         |attach-records = ${s.isAttachRecords}
-         |updatable-primary-keys = ${s.isUpdatablePrimaryKeys}
-         |reflection-caching = ${s.isReflectionCaching}
-         |fetch-warnings = ${s.isFetchWarnings}
-         |""".stripMargin)
-
-    Configs[Settings].extract(config) === s
+    val config = s.toConfigValue.atKey("s")
+    config.get[Settings]("s").exists(_ === s)
   }
-
-  def render(rm: RenderMapping): String =
-    s"""{
-       |  default-schema = ${ConfigUtil.quoteString(rm.getDefaultSchema)}
-       |  schemata = ${rm.getSchemata.asScala.map(render).mkString("[\n", ",\n", "\n]")}
-       |}
-       |""".stripMargin
-
-  def render(ms: MappedSchema): String =
-    s"""{
-       |  input = ${ms.getInput}
-       |  output = ${ms.getOutput}
-       |  tables = ${ms.getTables.asScala.map(render).mkString("[\n", ",\n", "\n]")}
-       |}
-       |""".stripMargin
-
-  def render(mt: MappedTable): String =
-    s"""{
-       |  input = ${mt.getInput}
-       |  output = ${mt.getOutput}
-       |}
-       |""".stripMargin
 
 
   implicit lazy val settingsGen: Gen[Settings] = {
     val A = Apply[Gen]
     val bool = Gen[java.lang.Boolean]
-    A.apply3(
-      A.tuple5(bool, Gen[RenderMapping], Gen[RenderNameStyle], Gen[RenderKeywordStyle], bool),
-      A.tuple5(bool, Gen[BackslashEscaping], Gen[ParamType], Gen[StatementType], bool),
-      A.tuple5(bool, bool, bool, bool, bool)
+    A.apply4(
+      A.tuple4(bool, Gen[RenderMapping], Gen[RenderNameStyle], Gen[RenderKeywordStyle]),
+      A.tuple4(bool, bool, Gen[BackslashEscaping], Gen[ParamType]),
+      A.tuple4(Gen[StatementType], bool, bool, bool),
+      A.tuple4(bool, bool, bool, bool)
     ) {
-      case ((rs, rm, rns, rks, rf), (rss, be, pt, st, el), (ol, ar, upk, rc, fw)) =>
+      case ((rs, rm, rns, rks), (rf, rss, be, pt), (st, el, ol, ar), (upk, rc, fw, jpa)) =>
         val s = new Settings()
         s.setRenderSchema(rs)
         s.setRenderMapping(rm)
@@ -90,6 +52,7 @@ object SettingsConfigsTest extends Scalaprops {
         s.setUpdatablePrimaryKeys(upk)
         s.setReflectionCaching(rc)
         s.setFetchWarnings(fw)
+        s.setMapJPAAnnotations(jpa)
         s
     }
   }
@@ -98,31 +61,28 @@ object SettingsConfigsTest extends Scalaprops {
     Apply[Gen].apply2(Gen.alphaChar, Gen.alphaNumString)(_ +: _)
 
   implicit lazy val renderMappingGen: Gen[RenderMapping] =
-    Apply[Gen].apply2(nameGen, Gen[List[MappedSchema]].map(_.asJava)) {
-      case (ds, schemata) =>
-        val rm = new RenderMapping()
-        rm.setDefaultSchema(ds)
-        rm.setSchemata(schemata)
-        rm
+    Apply[Gen].apply2(nameGen, Gen[List[MappedSchema]]) { (ds, schemata) =>
+      val rm = new RenderMapping()
+      rm.setDefaultSchema(ds)
+      rm.setSchemata(schemata.asJava)
+      rm
     }
 
   implicit lazy val mappedSchemaGen: Gen[MappedSchema] =
-    Apply[Gen].apply3(nameGen, nameGen, Gen[List[MappedTable]].map(_.asJava)) {
-      case (in, out, ts) =>
-        val ms = new MappedSchema()
-        ms.setInput(in)
-        ms.setOutput(out)
-        ms.setTables(ts)
-        ms
+    Apply[Gen].apply3(nameGen, nameGen, Gen[List[MappedTable]]) { (in, out, ts) =>
+      val ms = new MappedSchema()
+      ms.setInput(in)
+      ms.setOutput(out)
+      ms.setTables(ts.asJava)
+      ms
     }
 
   implicit lazy val mappedTableGen: Gen[MappedTable] =
-    Apply[Gen].apply2(nameGen, nameGen) {
-      case (in, out) =>
-        val mt = new MappedTable()
-        mt.setInput(in)
-        mt.setOutput(out)
-        mt
+    Apply[Gen].apply2(nameGen, nameGen) { (in, out) =>
+      val mt = new MappedTable()
+      mt.setInput(in)
+      mt.setOutput(out)
+      mt
     }
 
 
@@ -153,7 +113,8 @@ object SettingsConfigsTest extends Scalaprops {
         s.isAttachRecords,
         s.isUpdatablePrimaryKeys,
         s.isReflectionCaching,
-        s.isFetchWarnings))
+        s.isFetchWarnings,
+        s.isMapJPAAnnotations))
     )
 
   implicit lazy val renderMappingEqual: Equal[RenderMapping] =

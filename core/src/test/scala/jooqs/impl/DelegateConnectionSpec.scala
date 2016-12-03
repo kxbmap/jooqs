@@ -2,10 +2,10 @@ package jooqs.impl
 
 import java.sql.ResultSet._
 import java.sql.{Connection, Statement}
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers._
 import org.mockito.Mockito._
 import org.scalatest.FunSpec
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 
 class DelegateConnectionSpec extends FunSpec with MockitoSugar {
 

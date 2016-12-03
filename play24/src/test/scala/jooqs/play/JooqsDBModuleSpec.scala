@@ -74,7 +74,7 @@ class JooqsDBModuleSpec extends MixedPlaySpec {
       "db.default.driver" -> "org.h2.Driver",
       "db.default.url" -> "jdbc:h2:mem:default",
       "db.default.jooq.dialect" -> "MYSQL",
-      "db.default.jooq.renderSchema" -> false,
+      "db.default.jooq.render-schema" -> false,
       "db.default.jooq.render-keyword-style" -> "LOWER"
     ) {
       val db = instanceOf[DefaultComponent].db

@@ -3,7 +3,7 @@ package jooqs
 import jooqs.syntax._
 import org.jooq.impl.{DSL, SQLDataType}
 import org.scalatest.{BeforeAndAfter, FunSpec}
-import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.Try
@@ -35,7 +35,7 @@ class DatabaseSpec extends FunSpec with InMemoryTestDB with BeforeAndAfter {
 
 
   def fetchNames(): List[String] = db.withTransaction { implicit session =>
-    dsl.selectFrom(USER).fetch(NAME).toList
+    dsl.selectFrom(USER).fetch(NAME).asScala.toList
   }
 
 
