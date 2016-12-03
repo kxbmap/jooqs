@@ -5,7 +5,7 @@ import org.jooq.conf.{Settings, SettingsTools}
 
 package object config {
 
-  implicit lazy val jooqSettingsConfigReader: ConfigReader[Settings] =
+  implicit val jooqSettingsConfigReader: ConfigReader[Settings] =
     ConfigReader.deriveBeanWith(SettingsTools.defaultSettings())
 
 }

@@ -31,11 +31,11 @@ object `package` {
 
   implicit class RecordOps(private val self: Record) extends AnyVal {
 
-    def get[A, B](field: Field[A])(implicit u: Unbox[A, B]): B =
-      u.unbox(self.getValue(field))
+    def apply[A, B](field: Field[A])(implicit u: Unbox[A, B]): B =
+      u.unbox(self.get(field))
 
-    def getOpt[A, B](field: Field[A])(implicit u: Unbox[A, B]): Option[B] =
-      Option(self.getValue(field)).map(u.unbox)
+    def opt[A, B](field: Field[A])(implicit u: Unbox[A, B]): Option[B] =
+      Option(self.get(field)).map(u.unbox)
   }
 
 

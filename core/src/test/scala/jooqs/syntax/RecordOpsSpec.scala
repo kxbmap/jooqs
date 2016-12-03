@@ -17,9 +17,9 @@ class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {
           val record = mock[Record]
           val field = DSL.field("f", classOf[java.lang.Long])
 
-          when(record.getValue(field)).thenReturn(42L)
+          when(record.get(field)).thenReturn(42L)
 
-          val result: Long = record.get(field)
+          val result: Long = record(field)
           assert(result == 42L)
         }
 
@@ -27,10 +27,10 @@ class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {
           val record = mock[Record]
           val field = DSL.field("f", classOf[java.lang.Long])
 
-          when(record.getValue(field)).thenReturn(null)
+          when(record.get(field)).thenReturn(null)
 
           intercept[NullPointerException] {
-            record.get(field)
+            record(field)
           }
         }
       }
@@ -40,9 +40,9 @@ class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {
           val record = mock[Record]
           val field = DSL.field("f", classOf[String])
 
-          when(record.getValue(field)).thenReturn("foo")
+          when(record.get(field)).thenReturn("foo")
 
-          val result: String = record.get(field)
+          val result: String = record(field)
           assert(result == "foo")
         }
 
@@ -50,9 +50,9 @@ class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {
           val record = mock[Record]
           val field = DSL.field("f", classOf[String])
 
-          when(record.getValue(field)).thenReturn(null)
+          when(record.get(field)).thenReturn(null)
 
-          val result: String = record.get(field)
+          val result: String = record(field)
           assert(result == null)
         }
       }
@@ -64,9 +64,9 @@ class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {
           val record = mock[Record]
           val field = DSL.field("f", classOf[java.lang.Long])
 
-          when(record.getValue(field)).thenReturn(42L)
+          when(record.get(field)).thenReturn(42L)
 
-          val result: Option[Long] = record.getOpt(field)
+          val result: Option[Long] = record.opt(field)
           assert(result == Some(42L))
         }
 
@@ -74,9 +74,9 @@ class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {
           val record = mock[Record]
           val field = DSL.field("f", classOf[java.lang.Long])
 
-          when(record.getValue(field)).thenReturn(null)
+          when(record.get(field)).thenReturn(null)
 
-          assert(record.getOpt(field) == None)
+          assert(record.opt(field) == None)
         }
       }
 
@@ -85,9 +85,9 @@ class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {
           val record = mock[Record]
           val field = DSL.field("f", classOf[String])
 
-          when(record.getValue(field)).thenReturn("foo")
+          when(record.get(field)).thenReturn("foo")
 
-          val result: Option[String] = record.getOpt(field)
+          val result: Option[String] = record.opt(field)
           assert(result == Some("foo"))
         }
 
@@ -95,9 +95,9 @@ class RecordOpsSpec extends FunSpec with MockitoSugar with DisableAutoUnboxing {
           val record = mock[Record]
           val field = DSL.field("f", classOf[String])
 
-          when(record.getValue(field)).thenReturn(null)
+          when(record.get(field)).thenReturn(null)
 
-          assert(record.getOpt(field) == None)
+          assert(record.opt(field) == None)
         }
       }
     }

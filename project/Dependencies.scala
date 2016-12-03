@@ -21,7 +21,7 @@ object Dependencies extends AutoPlugin {
   import autoImport._
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
-    jooqVersion := "3.7.4",
+    jooqVersion := "3.8.6",
     play24Version := "2.4.8",
     play25Version := "2.5.10",
     scalapropsVersion := "0.3.4",
