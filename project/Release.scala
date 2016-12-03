@@ -9,9 +9,9 @@ import sbtrelease.ReleaseStateTransformations._
 
 object Release extends AutoPlugin {
 
-  override def trigger = allRequirements
+  override def trigger: PluginTrigger = allRequirements
 
-  override def requires = ReleasePlugin && SbtPgp
+  override def requires: Plugins = ReleasePlugin && SbtPgp
 
   object autoImport {
     val readmeFile = settingKey[File]("README file")

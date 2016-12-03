@@ -4,7 +4,7 @@ import scalaprops.ScalapropsPlugin.autoImport._
 
 object Dependencies extends AutoPlugin {
 
-  override def trigger = allRequirements
+  override def trigger: PluginTrigger = allRequirements
 
   object autoImport {
 

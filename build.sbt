@@ -1,6 +1,6 @@
 name := "jooqs"
 
-disablePublishSettings
+enablePlugins(DisablePublishing)
 
 lazy val core = project
   .enablePlugins(SyntaxGenerator)

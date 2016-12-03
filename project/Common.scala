@@ -1,9 +1,10 @@
+import BuildUtil._
 import sbt.Keys._
 import sbt._
 
 object Common extends AutoPlugin {
 
-  override def trigger = allRequirements
+  override def trigger: PluginTrigger = allRequirements
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
     scalaVersion := "2.11.8",
@@ -14,11 +15,19 @@ object Common extends AutoPlugin {
       "-unchecked",
       "-feature",
       "-Xlint",
-      "-Xexperimental",
       "-language:higherKinds",
       "-language:implicitConversions",
       "-language:experimental.macros"
     ),
+    scalacOptions ++= byScalaVersion {
+      case (2, 12) => Seq(
+        "-opt:l:method"
+      )
+      case (2, 11) => Seq(
+        // lambda syntax for SAM types
+        "-Xexperimental"
+      )
+    }.value,
     parallelExecution in Test := false,
     updateOptions := updateOptions.value.withCachedResolution(true)
   )
@@ -26,7 +35,7 @@ object Common extends AutoPlugin {
   object autoImport {
 
     val crossVersionSettings: Seq[Setting[_]] = Seq(
-      crossScalaVersions += "2.12.0"
+      crossScalaVersions := Seq("2.11.8", "2.12.0")
     )
   }
 

@@ -3,16 +3,9 @@ import sbt._
 
 object Publish extends AutoPlugin {
 
-  override def trigger = allRequirements
+  override def trigger: PluginTrigger = allRequirements
 
-  object autoImport {
-    val disablePublishSettings: Seq[Setting[_]] = Seq(
-      publishArtifact := false,
-      publish := {},
-      publishLocal := {},
-      publishM2 := {}
-    )
-  }
+  override def requires: Plugins = Common
 
   override lazy val projectSettings: Seq[Setting[_]] = Seq(
     publishMavenStyle := true,
@@ -35,6 +28,18 @@ object Publish extends AutoPlugin {
     developers := List(
       Developer("kxbmap", "Tsukasa Kitachi", "kxbmap@gmail.com", url("https://github.com/kxbmap"))
     )
+  )
+
+}
+
+object DisablePublishing extends AutoPlugin {
+
+  override def requires: Plugins = plugins.IvyPlugin
+
+  override lazy val projectSettings: Seq[Setting[_]] = Seq(
+    publishArtifact := false,
+    publish := {},
+    publishLocal := {}
   )
 
 }
