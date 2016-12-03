@@ -1,6 +1,8 @@
 name := "jooqs"
 
-enablePlugins(DisablePublishing)
+enablePlugins(
+  DisablePublishing,
+  CrossPerProjectPlugin)
 
 lazy val core = project
   .enablePlugins(SyntaxGenerator)
